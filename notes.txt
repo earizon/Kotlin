@@ -1,4 +1,4 @@
-●  Apropos:
+● APROPOS:
 - Visit next Web site for a great experience:
   https://earizon.github.io/txt_world_domination/viewer.html?payload=../Kotlin/notes.txt
 
@@ -16,245 +16,344 @@
 · @[https://kotlinlang.org/docs/resources.html]
 [[}]]
 
-● Kotlin 101 [[{kotlin.101]]
-
-  EVERYTHING IS AN EXPRESION  [[{02_doc_has.KEY-POINT]]
-
+KOTLIN 101  [[{101]]
+==========                ● EVERYTHING IS AN EXPRESION
   val max = if (a < b) {   <- "if" are expresions and the last
     print("a Wins "); a        expression is the value of the if-block.
-  } else {                     ( a || b)
+  } else if (b > a) {          ( a || b)
     print("b Wins "); b
-  }                           [[}]]
+  } else {
+    print("draw");
+    throw RuntimeException("") <- Interrupt computation. No solution exists
+  }
 
-  val a: Int  = 1          <- VALUES ARE INMUTABLE BY DEFAULT.
-  val a       = 1          <- Types can be inferred.
+  val a: Int  = 1      <──● (VAL)UES ARE INMUTABLE. a +=1 will NOT compile  [[{qa.101,qa.immutability]]
+       └───┴─················ Optional. Types can be inferred.
+                              NOTE: Anything not part of the state-machine is
+                                    a value. Prefer it over variables.        [[}]]
 
-  var count  = 5;          <- User var(iable) for variable.
+  var count  = 5;          <- User var(iable) for mutable (var)iables.
       count += 1;
+  val (x, y) = funN(1,2)   <- split returned value
+
+  val s: String? = if (Math.random() < 0.5) <··· Nullable var (prefer Future to this)
+                      "Yay!"
+                   else null
+ Optionality is so common in programs that it makes sense to integrate it at a deep level, for both convenience and performance reasons:
+println("length of string is .... ${s.length()}")
+
+
 
   import bar.Bar as bBar   <- Imports are similar to Python
 
   if (obj  is String) ...  <- 'is' used for Runtime type-check
   if (obj !is String) ...
 
-  val a = Class(param1),      == "vs" ===
+  val a = Class(param1),   '==' vs '==='
       b = Class(param1)
   a === b                  <- returns false. a,b are different instances in memory.
-  a ==  b                  <- returns true.
+  a ==  b                  <- returns true. (a.equals(b) returns true)
 
   val result =                      [[{qa.error_management]]
-  try { count() }                   <- try/catch is also an expresion (return val)
-  catch (e: ArithmeticException) {
+  try { count()                     <- try/catch is also an expresion (return val)
+  } catch (e: ArithmeticException) {
     throw RuntimeException(e)
   }                                 [[}]]
 
+  loop1@ for (i in 1..100) {  <- any expresion can be marked with a label
+    for (j in 1..100) {
+      if (j == 55) break@loop1    <- jumps right after the loop1
+    }
+  }
 
 
 
-● STANDARD FUNCTIONS (no import required) [[{kotlin.std_fun]]
+● MICRO-SHELL, REPL : (R)ead, (e)valuate, (p)arse, (L)oop  [[{101.REPL]]
+  REF: https://discuss.kotlinlang.org/t/k2jvmcompiler/3629
+  ┌ REPL example ───────────────────────────────┐
+  │ private val                                 │
+  │    REGEX_SEPARATED_TOKENS = Regex("[ \t]+") │
+  │                                             │
+  │ private fun parseLine (shellInput : String) │
+  │ : List<String> =  // returns tokens in line │
+  │     shellInput                              │
+  │     .split(REGEX_SEPARATED_TOKENS)          │
+  │     .filter { !it.isEmpty()}                │
+  │                                             │
+  │ private val USSAGE = """                    │
+  │   USSAGE EXAMPLES: ...""".trimMargin()      │
+  │                                             │
+  │ fun main(args: Array<String>) {             │
+  │   while (true) {                            ││<······· 'L' in REPL
+  │                                             │          (loop start over next order/command/instruction)
+  │     print("PROMPT> ")                       │┐
+  │     val lineTokens =                        ││ <······ 'R' in  REPL
+  │        parseLine(readLine() ?: continue)    ││ <······ (readLine will block "waiting" for new input)
+  │     if (lineTokens.size == 0) continue      │┘
+  │     val action = lineTokens[0]              │
+  │     if ( action == "quit") break            ││ <······ 'P' in REPL
+  │     val args : List<String> =               ││
+  │       if (lineTokens.size == 0) listOf()    ││
+  │       else                                  ││
+  │       lineTokens.subList(1,lineTokens.size) │┘
+  │                                             │
+  │     val ouput : String = if (false) ""      │┐ <······ 'E' in REPL
+  │       else if                               ││
+  │         (action == "cmdA") _ExecCmdA(args)  ││
+  │       else if                               ││
+  │         (action == "cmdB") _ExecCmdB(args)  ││
+  │       else USSAGE                           │┘
+  │     System.err.println(ouput)               │
+  │   }                                         ││<······· 'L' in REPL
+  │ }                                           │          (loop end  over next order/command/instruction)
+  └─────────────────────────────────────────────┘        [[101.REPL}]]
 
 
-  ─ apply ─────────────────────────────────────────────────────────────
+● STANDARD FUNCTIONS (no import required) [[{std_fun]]
+ ┌─ apply ───────────────────────
   val task = Runnable { ... }
   Thread(task)
-  .apply  {                <- helper function to init objects,
-    setDaemon(true)           - applies lambda to object
-  }                           - return same object.
-  .apply { ... }
-  .start()
+  .apply  { setDaemon(true) } <- helper function to init objects,
+  .apply { ... }                 1) applies lambda to object
+  .start()                       2) return same object.
 
-  ─ with(instance)  ───────────────────────────────────────────────────
+ ┌─ with(instance)  ──────────────
   class Turtle {
-    turn(degrees: Double)
-    forward(pixels: Double)
+    turn   (degrees: Double) { ... }
+    forward(pixels : Double) { ... }
     ...
   }
   val myTurtle = Turtle()
-  with(myTurtle) {         <- Avoid repeated (prefix.) typing.
-    for(i in 1..4) {          <- 1..4 creates 1,2,3,4?  range.
+  with(myTurtle) {         <- Avoid repeated myTurtle. (prefix) typing.
+    for(i in 1..4) {          <- 1..4 creates 1,2,3,4 range.
       forward(100.0);
       turn(90.0)
     }
   }
-
-  ─ run extension fun ──────────────────────────────────────────────────
+ ┌─ run extension fun ────────────
   val outputPath = Paths.get("/home/user")
-  .run {                           <- A closure {...} is passed to run, which
-                                      has the instance as the receiver.
-    val path = resolve("out.log")  <- path == File("/home/user/out.log)
+  .run {                           <- A closure {...} is passed to run
+    val path = resolve("out.log") ┌·· 'outputPath.' implicit.
+              ^···················┘   path == File("/home/user/out.log)
     path.toFile().createNewFile()
     path                           <- return value of closure is used as
   }                                   return value of run itself
-  [[kotlin.std_fun}]]
+  [[std_fun}]]
 
-
-                                   ● 'lazy' [[{kotlin.performance]]
+ ┌─ 'lazy' [[{performance]] ─────
   val lazyString = lazy {          <- wraps expensive operation to be
      expensiveOperationFun()          invoked when first required.
   }                                   [[}]]
 
+ ┌─ 'use' (try-with-resources in java) [[{qa.101]]
   val stream = Files.newInputStream(
       Paths.get("/some/file.txt"))
-  stream.buffered().               ● 'use' (try-with-resources)
+  stream.buffered().
     reader() .use  {               <- Close reader after { ...} executions
     reader ->
       println(reader.readText())
-  }
-                                   ● repeat
-  repeat(10, { println("Hello") }) <- Avoid "for" for simple operations
+  }                                   [[}]]
 
+  repeat(10, { println("Hello") }) ● repeat: Avoid "for" for simple operations
 
-● Kotlin Data Structures [[{kotlin.data_structures]] [[ $ TODO: move to correct place ]]
+● KOTLIN DATA STRUCTURES [[{data_structures]] [[ $ TODO: move to correct place ]]
+  BASIC TYPES [[{data_structures.standard_types]]
+  * Long/Int/Short/Byte(64,32,16,8)  <- Numerical.
+  * val c: Char = '\uFF00',          <- Chars
+        a = 'a',
+        w = '\b'
+  * Strings
+  * Arrays
+  * Boolean
 
-                                   ● Basic Types [[{data_structures.basic_types]]
-  Long/Int/Short/Byte(64,32,16,8)  <- Numerical.
-  val c: Char = '\uFF00',          <- Chars
-      a = 'a',
-      w = '\b'
-  Strings
-  Arrays
-  Boolean
-                                    • e.g. explicit Chart to Int conversion
-  if (c in '0'..'9')                 <- // alt: '0'..'9'.contains(c)
+      ┌───────────┬─· alt syntax: '0'..'9'.contains(c)
+  if (c in '0'..'9')               • e.g. explicit Chart to Int conversion
     c.toInt() - '0'.toInt()
   else
     throw RuntimeException("...")
 
-  val x = (1 shl 2) and 0x00FF      • bitwise operations
+  val x = (1 shl 2) and 0x00FF      • BITWISE OPERATIONS
   (u)shl/(u)shr) bits:              <- (un)signed shift left/righ
   and/or/xor                        <- bitwise
   inv()                             <- bitwise inversion
 
-  (Byte|Short|Int|...)Array         • special optimized arrays [[{performance}]]
-                                     [[data_structures.basic_types}]]
+  * (Byte|Short|Int|...)Array       • SPECIAL OPTIMIZED ARRAYS [[{performance}]]
+              [[data_structures.standard_types}]]
 
-                                                 ● Sequences (Java streams),
-                                                   collections of unknown size
-  val charSeq: Sequence<Char> =
-    charArrayOf('a','b','c')
-    .asSequence()                                <- Create Sequence from array
-  val s1 : String  = charSeq.joinToString(",")      [[{Strings}]]
-
+  Sequences (Java streams) [[{data_structures.sequences]]
+  """ Sort of collections of unknown size """        [[{02_doc_has.KEY-POINT]]
+  - Compared to collections, sequences do NOT        [[{02_doc_has.comparative,performance]]
+    use/waste intermediate memory during processing. [[}]]
+  - They can also be seen as "future" collections
+    with "future" (unknown at compile time) external
+    (incomming or computed) data.
+    This is the most common scenarios in production
+    environments.                                   [[02_doc_has.KEY-POINT}]]
   var count = 10
-  val sequence = generateSequence {              <- Sequence generator
+  val sequence = generateSequence {  <- Sequence generator
       (count--).takeIf { it > 0 }
   }
+                                     ● Generators (Kotlin v.1.2.41+) [[{performance.generators]]
+  val fibonacciSeq = buildSequence {  <- Build generator (vs sequence).
+      var a = 0, b = 1                   data is generated on-demand (lazely)
+      yield(1)                           <- 'yield' stops execution until "next-value" request
+      while (true) {                          ·     to "function" is done.
+          yield(a + b)                   <-···┘     • See also buildIterator():
+          val tmp = a + b                     ·
+          a = b                               ·
+          b = tmp                             ·
+      }                                       ·
+      yieldAll(1..10)                    <···─┴─ yield a collection (or sequence) of values
+  }                                              at once on 'next-value' request.
 
-  [[{02_doc_has.KEY-POINT]] compared to collections, sequences do NOT
-  use/waste intermediate memory during processing. [[}]]
+  fibonacciSeq.take(8).toList() <··· Ussage [1, 1, 2, 3, 5, 8, 13, 21]
+
+  val lazySeq = buildSequence { yield(0) }                           [[performance.generators}]
+
+  [[data_structures.sequences}]]
 
 ● typealias: [[{qa,performance]]
-- Rename type with alias.  The alias is simply replaced by the compiler.
-  This means that new types are not created or allocated, so we suffer
-  no performance penalty.
-typealias Cache      = HashMap<String, Boolean>
-
-typealias Address    = String  <- WARN: typealias do NOT increase type safety.
-typealias FamilyName = String     Q: Does it means that Address can be used as FamilyName?
+- Rename a given type with a new alias.
+  The alias is simply replaced by the compiler.
+  This means that new types are not created or allocated,
+  so we suffer no performance penalty.
+  typealias Cache      = HashMap<String, Boolean>
+  typealias Address    = String  <- WARN: typealias do NOT increase type safety.
+  typealias FamilyName = String     Q: Does it means that Address can be used as FamilyName?
 [[}]]
 
-● COLLECTIONS                                              [[{kotlin.data_structures.collections]]
+***************
+* COLLECTIONS *     [[{data_structures.collections]]
+***************
 ● Arrays vs List<T>     [[{02_doc_has.comparative]]
-          └──△──┘
-      ┌──────┴─────┬───────────────────┬──────···
+            └──△──┘
+      ┌────────┴───────┬───────────────────┬───···
   MutableList<T>   ArrayList<T>        LinkedList<T>
   └─────△──────┘
         └──────────┬───────────────────┬───────···
             MutableArrayList<T> MutableLinkedList<T>
 
-  - Array<T>: class with known implementation:
-              sequential fixed-size memory region storing the items (Java array in JVM)
-              cannot expand or shrink retaining identity (a new copy is needed to resize it).
+  - Array<T>: · class with KNOWN IMPLEMENTATION (Java array in JVM).
+                sequential fixed-size memory region storing the items.
+              · cannot expand or shrink retaining identity
+                (a new copy is needed to resize it).
 
   - (Mutable)List<T>: interfaces which different implementations:
-              Memory representation and operations logic are defined in
-              concrete implementation. (indexing is O(n) in LinkedList<T>, O(1) in ArrayList<T>,...)
+              · Memory representation and operations logic are defined in
+              · concrete implementation. e.g.:  indexing is
+                O(n) in LinkedList<T>, O(1) in ArrayList<T>,...)
+
   - MutableList<T> can be resized with 'add', 'remove'.
 
   - Array<T> is mutable
   - List<T>  is either read-only view of MutableList<T> or immutable.
 
-    Array<T>       is invariant on T (      Array<Int> is not Array<Number>)
-    MutableList<T> is invariant on T (MutableList<Int> is MutableList<Number>)
+  - Array<T>       is invariant on T (      Array<Int> is NOT Array<Number>)
+    MutableList<T> is invariant on T (MutableList<Int> is NOT MutableList<Number>)
     List<T>        is covariant      (       List<Int> is List<Number>)
-
+    In practice:
     val a: Array<Number> = Array<Int>(0) { 0 } // won't compile
     val l: List<Number> = listOf(1, 2, 3) // OK
 
     [[{02_doc_has.KEY-POINT]]
-    - Arrays are optimized for primitives through IntArray, DoubleArray, CharArray, ...
+    - ARRAYS are OPTIMIZED FOR PRIMITIVES through IntArray, DoubleArray, CharArray, ...
       which are mapped to Java primitive arrays (int[], double[], char[]).
     - Lists in general do not have implementations optimized for primitives,
       (NOTE: some non-standard libraries do)
-    - prefer Lists over arrays everywhere except for performance
-      critical parts.  [[}]]
+    - PREFER LISTS OVER ARRAYS EVERYWHERE EXCEPT FOR PERFORMANCE
+      CRITICAL PARTS.  [[}]]
 
-    Also primitive/Array<String>/enum-class arrays can be used in annotations.
-    Lists and other collections canNOT be used in annotations.  [[02_doc_has.comparative}]]
+  - primitive/Array<String>/enum-class arrays can be used in annotations.
+    while Lists (and other collections) can NOT.  [[02_doc_has.comparative}]]
 
-                                                             INITIALIZING ARRAYS
-  val array1 : Array<String> = arrayOf("asdf","ADF")         <- From known set of values (at compile time)
-  val emptyStringArray = arrayOf<String>()                   <- empty array
+                                        ● INITIALIZING ARRAYS
+  val array1: Array<String> =
+          arrayOf("asdf","ADF")          <- From known set of values (at compile time)
+  val emptyStrArray = arrayOf<String>()  <- Init. empty array
 
-                                                             INITIALIZING LISTS
-  val doubleList : List<Double>= arrayListOf(84.88, ...)     <- Inmutable by default (Use MutableList otherwise)
-  val nonNulls  = listOfNotNull<String>{null, "a",...}       <- Null safe  [{qa.billion_dolar_mistake}]]
-  val readWriteList: MutableList<String> =                   <- Mutable list
-                        mutableListOf(...)
+  val array2: Array = IntArray(20).apply{fill(-1)}
 
-  val    a = asList(1, 2, 3)                                 SPREAD ARRAY
-  val list = asList(-1, 1,     /*spread*/, 4)
+                                        ● INITIALIZING LISTS
+  val doubleList: List<Double>=
+          arrayListOf(84.88, ...)         <- Inmutable by default (Use MutableList otherwise)
+  val nonNulls = listOfNotNull<String>    <- Null safe  [{qa.billion_dolar_mistake}]]
+                   {null, "a",...}
+  val readWriteList: MutableList<String> =<- MUTABLE list
+                        mutableListOf(...)   An inmutable view can be declared as:
+                                             val readView:List<String> = readWriteList
 
-  val list2 = list1 .filter  { x -> x > 0 }                  <- NEW LIST FROM INITIAL LIST PASSING A FILTER
-  val list2 = list1.filter { it > 0 }                        <- SHORTER SYNTAX (using default "it")
+  val    a  = asList(1, 2, 3)             <- from tuple/array
+  val list1 = asList(-1, 1, /*spread*/, 4)<- from spread array.
+  val list2 = list1.filter{ x -> x > 0 }  <- NEW LIST FROM list1 PASSING A FILTER
+                          └────────────┴── syntax shortcut: { it > 0 }
 
-  val readOnlyView : List<String> = readWriteList            <- Read-only view of mutable list
-  val squaredArray: Array =                                  <- lambda-init
-      Array(5,  { idx -> (idx * idx).toString() } )
+  val squaredArray: Array = Array(5,
+       { idx -> (idx * idx).toString() }) <- lambda-init
 
-  sequence.forEach  { it*it }                                WALK-OVER/ITERATE Alt 1
-  for ( item in myArrayOrList)  println("${item}")           WALK-OVER/ITERATE Alt 2
-  for (idx  in intL.indices) println("$idx: ${intL[idx]}")   WALK-OVER/ITERATE Alt 3, using index
+                                      ● WALK-OVER/ITERATE ARRAY/LISTS/SEQUENCES
+  sequence.forEach  { it*it }         <- Alt 1
+  for (valI in myArrayOrList) ...     <- Alt 2
+  for (idx in arr1.indices) ...       <- Alt 3: idx (index ), arr1[idx] (value@index)
+  for ((id, val) in arr01.withIndex())<- Alt 4: idx + value
+    { ... "$idx -> $val"  }
+  for ((key, value) in map              ) { println("$key -> $value") }
 
+  list1                               ● FUNCTIONAL PROGRAMMING
+    .filter { it.startsWith("a") }
+    .sortedBy { it }
+    .parallel()              <·· tells JVM to run the rest   [[{performance.101]]
+    .map { it.toUpperCase() }    of the pipeline in multiple
+    .forEeach( println(it) )     threads.                    [[}]]
 
-  val map1 = mapOf("a" to 1, "b" to 2)                       INITIALIZING MAPS
-  val map2 = mapOf(Pair("a", 1), Pair("b", 2))               <- println(map1) prints [1, 2]
+                                      ● INITIALIZING MAPS
+  val map1 = mapOf("a" to 1, "b" to 2)
+  val map2 = mapOf(Pair("a", 1), Pair("b", 2))
+  println(map1)                       <- '[1, 2]' (Print values, ignore keys)
 
-  val intSet: Set<Int> = setOf(1, 2, 1,..)                   INITIALIZING SETS
+                                      ● INITIALIZING SETS
+  val intSet : Set<Int> = setOf(1, 2, ,..)
   val hashSet: java.util.HashSet<Book> =
       hashSetOf(Book(...), Book(...)
   val longSet: MutableSet<Long> = mutableSetOf(1, 2, 3)
-  [[kotlin.data_structures.collections}]]
+  [[data_structures.collections}]]
 
-● KOTLIN RANGES: [[{kotlin.data_structures.ranges]]
-  NOTES: ranges are not a real data structures, but mathematical
-         closed-intervals with well defined operations.
-         In practice the can be seen as some sort of iterable lists.
+● KOTLIN RANGES: [[{data_structures.ranges]]
+  """... Ranges are NOT a real data structure, but
+    mathematical closed-intervals with well defined operations.
+    In practice the can be seen as some sort of iterable lists. """
 
-  val aToZ = "a" .. "z"             ● RANGES: ANY COMPARABLE TYPE CAN BE USED
+  val aToZ = "a" .. "z"    <···  ANY COMPARABLE TYPE CAN BE USED
+                                 '..': operator(sintax sugar) for a.rangeTo(z)
   "c" in aToZ  /* true */
   val countingDown = 100.downTo(0)
-  val ten20 = 10.rangeTo(20).step(2)
-[[kotlin.data_structures.ranges}]]
-● data class (DTO)  [[{kotlin.data_structures.data_class]]
+  val ten20 = 10.rangeTo(20).step(2) // 10..2
+  if (x in 1...y+1) { ... }
+  val range1 = Version(1, 11)..Version(1, 30) <·· PRESETUP: create range for Version class.
+  if (Version(0, 9) in range1) { ... }  <·· 'in' (or !in) : Main operation in ranges
+  for (x in 1..10 step 2) { ... }
+    (1..10).filter { it % 2 == 0 }      <··· map, filter, ... can be used (Iterable implemented)
+  for (x in 10 downTo 0 step 2) { ... }
+  for (n in (1..4).reversed())  { ... }
+               [[data_structures.ranges}]]
+
+● data class (DTO)  [[{data_structures.data_class]]
   automatically generates:
-- getters (and setters for vars),
-- equals(), hashCode(), toString(), copy()
-- component1(),… for all properties
+  - getters (and setters for vars),
+  - equals(), hashCode(), toString(), copy()
+  - component1(),… for all properties
 
   data  class Customer(
-  val name  : String,  // val: inmutable
-  val email : String,  // val: inmutable
-  var refNum: Int )    // var:   mutable
-  // optional class member functions
-  {
+  val name  : String,                   <··· val: inmutable
+  val email : String,                   <··· val: inmutable
+  var refNum: Int )                     <··· var:   mutable
+  {                                     <··· optional class member functions
     override fun toString() : String {
       return "(${refNum} : ${name} <${email}>)"
     }
   }
-[[}]]
+[[data_structures.data_class}]]
 
-[[kotlin.data_structures}]]
+[[data_structures}]]
 
                                            ● Require/assert/check [[{qa.error_management]]
   fun neverEmpty(str: String) {
@@ -263,8 +362,7 @@ typealias FamilyName = String     Q: Does it means that Address can be used as F
     println(str)
   }                                          [[}]]
 
-
-● Regular Expresions (Regex) [[{kotlin.regex]]
+● Regular Expresions (Regex) [[{regex]]
 @[https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.text/-regex/]
   // Matching and finding the groups in Kotlin:
 
@@ -312,7 +410,7 @@ typealias FamilyName = String     Q: Does it means that Address can be used as F
 [[qa.billion_dolar_mistake}]]
 
  obj: Any = 1
- String = when(obj) {               <- ● 'when' (extended switch-case)
+ String = when(obj) {                  ● 'when' extended switch-case
    1            -> "One"
    "Hello"      -> "Greeting"
    is Long      -> "Long"
@@ -322,32 +420,36 @@ typealias FamilyName = String     Q: Does it means that Address can be used as F
    else         -> "Unknown"
  }
 
-● Strings Management [[{kotlin.strings]]
+● Strings 101 [[{strings]]
 
-  val s1 = "Hello World  $a !"           <- String template
-  "col1:  ${ s1.replace("A", "B") }  $d" <- String Expresions
+  val s1 = "Hello World  $A !"       <- String template
+  "col1:  ${ s1.replace("A", "B") } $d"
+          └┴──────────────────────┴─ <- String Expresions
 
-  val myMultiLineString = """            <- Multiline string with margin
+  val myMultiLineString = """        <- Multiline string with margin
      |  for (c in "foo")
      |      print(c)
      |  Dolar is writen as ${'$'}
-  """. trimMargin()                         <- remove leading spaces.
-  print(myMultiLineString)
+  """. trimMargin()                  <- remove leading spaces.
 
-[[kotlin.strings}]]
+  val s1 = charArrayOf('a','b')      <- array to string.
+           .asSequence()
+           .joinToString(",")
+[[strings}]]
 
-
-● INTERFACES [[{kotlin.interfaces]]
-  interface MyInterface {            INTERFACE DEFINITION
+● INTERFACES [[{interfaces]]
+  interface Iface1<out T : Any> {            INTERFACE DEFINITION
       val prop1: Int                 <- Properties can be part of the interface.
       val prop2: String
            get() = "foo"             ← default accessor
-      fun bar(): Int
-      fun foo() { print(prop)  }     ← Default implementation
-      fun foo() { }
+      fun bar(): T
+      fun foo(): Unit
+      fun foo(a: Int): T                                 ← instance: => instance ←→ type
   }
 
-  class Child : MyInterface {        <- Declare class as implemeting interface
+
+
+  class Class : Iface1, Iface2 {    <- Declare class as implemeting interfaces' contracts
     override val prop: Int = 29
   }
 
@@ -357,20 +459,17 @@ typealias FamilyName = String     Q: Does it means that Address can be used as F
 
   "Real" Code:                  Shortcut "Syntax-Sugar"
   ======================        =======================
+  threadPool.submit(            threadPool.submit { <···┐
+    object : Runnable {           println("...")        ·
+     override fun run() {       }                       ·
+       println("...")           ┌······················─┘
+     }                          Compilers infers that { ... }
+    }                           implements the expected fun run()
+  )                             in  <<Runnable>>>
+[[interfaces}]]
 
-  threadPool.submit(     <··┐   threadPool.submit {
-    object : Runnable {     ·     println("...")
-     override fun run() {   ·   }
-       println("...")       ·
-     }                      └·· Submit expects a class implementing <<Runnable>>
-    }                           We can avoid the Runnable {  ... override ... }
-  )                             since only a method is defined.
-[[kotlin.interfaces}]]
-
-● KOTLIN FUNCTIONS   [[{kotlin.functions]]
+● KOTLIN FUNCTIONS   [[{functions]]
 @[https://kotlinlang.org/docs/reference/functions.html]
-
-
         (Int) -> String       <··· function type signature:
                                    Input  is Int, Output is String
   TypeA.(Int) -> String       <··· function-with-receiver type signature
@@ -380,56 +479,68 @@ typealias FamilyName = String     Q: Does it means that Address can be used as F
                                      object TypeA (implicit .this in
                                      function body)
 
-   val fun1:                     <··· type ((A, B) -> C)  and
-    String.(Int) -> String = ...      type ( A.(B) -> C) are compatible types
-   val fun2:
-   (String, Int) -> String = fun1     <- OK: Allowed assignement.
+  val fun1:                   <··· type ((A, B) -> C) and
+   String.(Int) -> String = ...    type ( A.(B) -> C) are compatible types
+  val fun2:
+  (String, Int) -> String = fun1     <- OK: Allowed assignement.
 
-   suspend   () -> Unit       <··· Suspend function                     [[{01_PM.TODO]]
-   suspend A.(B) -> C.        <··· Suspend function with receiver type  [[}]]
+  suspend   () -> Unit       <··· 'suspend' (vs fun): set as corutine
+  suspend A.(B) -> C.        <··· 'suspend' corutine with receiver type
 
-   (x: Int, y: Int) -> Point  <··· names for function parameters is Optional
+  (x: Int, y: Int) -> Point  <··· 'x','y' names for parameters is Optional
 
-   ((Int) -> Any)?            <··· Set function type as nullable with (...)?
+  ((Int) -> Any)?            <··· '?' sets function-type as nullable.
 
-   (Int) -> ((Int) -> Unit)   <··· Function type signature return function type.
+  (Int) -> ((Int) -> Unit)   <··· function-type signature returns function-type
 
-   typealias ClickHandler =   <··· Type alias for function signature.
-      (Button, ClickEvent) -> Unit
+  typealias ClickHandler =   <··· Type alias for function signature.
+     (Button, ClickEvent) -> Unit
 
-   { a, b -> a + b },         <··· lambda expression, declares and init anonymous func.
+  { a, b -> a + b }          <··· lambda expression, declares and init anonymous func.
 
-   fun(s: String): Int {      <··· anonymous function, useful when we need to explitely
-     return s.toIntOrNull() ?: 0   define the return type.
-   }
+  fun(s: String): Int {      <··· anonymous fun., useful when we need to explitely
+    return s.toIntOrNull() ?: 0   define the return-type.
+  }
 
-   NOTE: 'return' inside lambdas        will return from the enclosing function.
-         'return' inside anonymous fun. will return from the anonymous function itself.
-                  Use 'return@enclosingFunction' to replicate lambda behaviour.
+  NOTE: 'return' inside lambdas        will return from the enclosing function.
+        'return' inside anonymous fun. will return from the anonymous function itself.
+                 Use 'return@enclosingFunction' to replicate lambda behaviour.
+         fun foo() {
+           ints.forEach lit@ {            <- Alt 1. lambda function
+             if (it == 0) return          // returns from foo
+             if (it == 1) return@lit      // returns from lambda lit@
+             if (it == 2) return@forEach  // returns from lambda lit@ (implicit label)
+             print(it)
+           }
+           ints.forEach( fun(val: Int) {  <- Alt 2. anonymous function
+             if (it == 0) return          // local returns from  anonymous funct
+             print(val)
+           }
+         }
 
-   funA(x)   is equivalent to funA.invoke(x)   for non receiver function-types.
-   O.funA(x) is equivalent to funA.invoke(O,x) for     receiver function-types
+  funA(x)   is equivalent to funA.invoke(x)   for non receiver function-types.
+  O.funA(x) is equivalent to funA.invoke(O,x) for     receiver function-types
 
+  items.fold(1, { lambda } ) <··· "traling lambda" Kotlin (syntax-sugar) convention:
+  items.fold(1) { ... }           if last (or only) arg of function is a function-type,
+                                  the lambda expression passed-as-argument can be
+                                  placed outside the parentheses in order to allow
+                                  replacing
+                                  a ({ b ({ c }) })  by
+                                  a  { b  { c }  }
 
-   items.fold(1, { lambda } ) <··· "traling lambda" Kotlin (syntax-sugar) convention:
-   items.fold(1) { ... }           if last (or only) arg of function is a function-type,
-                                   the lambda expression passed-as-argument can be
-                                   placed outside the parentheses in order to allow
-                                   replacing
-                                    a ({ b ({ c }) })  with a { b { c } }
-
-  fun getPoint(                  <····· Alt 1: Fun. Definition (java like)
+  fun getPoint(                  <····· Alt 1: Fun. Def, java-like
       a: Int,
-      b: Int  = 1                    <- Default values in functions (avoid nulls)
+      b: Int  = 1                    <- Default values in functions [[qa.billion_dolar_mistake]]
       vararg names: String           <- variable-number-of-args supported (0 or more)
      )
   : Coordinate {                     <- Return type
     return Coordinate(a+b,a-b)
   }
 
-  fun getPoint(                  <····· Alt 2: Fun. Definition (Kotlin "Syntax Sugar shorcuts")
+  fun getPoint(                  <····· Alt 2: Fun. Def. Kotlin shorcut.
     Int, Int = 1, vararg: String)       <- param names not required.
-      = Coordinate(a+b,a-b)             -< return type inferred
+      = Coordinate(a+b,a-b)             <- return type inferred
 
   val (x, y) = getPoint(1,2)         <- split returned value
   getPoint(a = 1, b = 2)             <- Using named parameters supported
@@ -439,28 +550,27 @@ typealias FamilyName = String     Q: Does it means that Address can be used as F
       ...
   }
 
-• tailrec   <·························· 'tailrec' keyword tells compiler that implementation  [[{performance]]
+• tailrec   <·························· 'tailrec' tells compiler that implementation [[{performance]]
   fun findFixPoint(x: Double = 1.0)     must be tail-recursive. Otherwise compilation must fail.
   :Double                               Compiler optimises out the recursion!!!
     = if (x == Math.cos(x)) x
       else findFixPoint(Math.cos(x)) <· recursive call must be last operation.
            └··········┘                 WARN : doesn't work within try/catch.
-                                        only supported in JVM as of 2018?? (TODO:Update as 2022) [[}]]
+                                        only supported in JVM as of 2018?? ([[01_PM.TODO:Update as 202?) [[}]]
 
-• inline fun lock(x1: Class1) :      <- Inline function definition
+· inline fun lock(x1: Class1) :      <- Inline fun. definition.
     ReturnClass { ... }
 
-• fun String.spaceToCamelCase()      <- (Class) EXTENSION FUNCTIONS: provides shorted systax
+· fun String.spaceToCamelCase()      <- (Class) EXTENSION FUNCTIONS: provides shorted systax
       String { ... }                    for the "friend" class objects (String in this case)
   "to camelcase".spaceToCamelCase()     <- OK
   23424.spaceToCammelCase()             <- Compiler error. Doesn't match expected class.
 
-• val countChars: String.() -> Unit =   <- Function as value object. Type is 'String.() -> Unit'
+· val countChars: String.() -> Unit =   <- Fun. as value object. Type is 'String.() -> Unit'
       { println("${length}") }             <- Value is the executable code defined in {} block
-  countChars( "ASDF" )                  <- Ussage Allowed?
-  "ASDF".countChars( )                  <- Ussage Allowed
+  "ASDF".countChars( )                  <- Ussage Allowed ( or countChars( "ASDF" ) )
 
-• Function receivers: Very similar to extension functions but applies to
+· FUNCTION RECEIVERS: Very similar to extension functions but applies to
   func. literals. (that is, to variables representing functions)
 
            ┌──┬─························· receiver Object members can be
@@ -469,23 +579,7 @@ typealias FamilyName = String     Q: Does it means that Address can be used as F
   }         └──┴─······················┘  receiver.
                                           == other -> other.plus(this)
 
-
-
-
-
-• fun <T, R> Collection<T>.fold(        <- High order function
-    initial: R,
-    funCombine: (ptr: R, next: T) -> R     <- takes another function as input
-  ): R {
-      var accumulator: R = initial
-      for (element: T in this) {
-          accumulator = funCombine(
-                accumulator, element)
-      }
-      return accumulator
-  }
-
-• class Account {
+· class Account {
     var balance = 0.0                      INFIX Functions (DSL utility)
     infix fun add(amount:Double): Unit  <- 'infix' declaration for function
           : Unit {
@@ -495,7 +589,7 @@ typealias FamilyName = String     Q: Does it means that Address can be used as F
   accountInstance add 100.00            <- Infix ussage
 
 
-• OPERATOR    FUNCTION NAME              OPERATOR OVERLOADING
+· OPERATOR    FUNCTION NAME              OPERATOR OVERLOADING
   ========    =============              Allowed for well defined set of operators
   a + b     : plus      ()               (vs "anything" in C++)
   a - b     : minus     ()
@@ -510,47 +604,47 @@ typealias FamilyName = String     Q: Does it means that Address can be used as F
   < <=  > >=: compareTo ()
   ()        : operator func invoke()
 
-• fun foo(                                            HIGH ORDER FUNCTION
+· fun foo(                            <-● HIGH ORDER FUNCTION
        name: String,
-       paramFunc: (String) -> String)                 <- Function received as parameter
+       fun1: (String) -> String)           <- receives another fun. as param.
        : Unit {
-    val applied = paramFunc(name)
+    val applied = fun1(name)
     println(applied)
   }
-  foo("hello", paramFunc = { it.reversed() } )        <- Ussage
+  foo(name = "hello",
+      fun1 = { it.reversed() } )        <- Ussage
 
-
-• fun bar()                                           <- Function returning a function
-  : (String) -> String = { s -> s.reversed() }           This allows for currying functions
-    └··return type···┘   └····return value···┘           e.g.: log(b,e) -> log2(e), log10(e)
-
-• fun students(nameToMatch: String): List<Student> {
-    return loadStudents().filter {                    <- CLOSURE function with access to
-      it.lastName == nameToMatch                         parent stack
+• fun students(nameToMatch: String)
+      : List<Student> {
+    return loadStudents().filter {    <-●  CLOSURE function with access to
+      it.lastName == nameToMatch           parent stack
     }
   }
 
-● fun Function1 .memoized() : (String) -> MyClass {   <- MEMOIZATION  [[{performance.101]]
-    val map = ConcurrentHashMap<String, MyClass>()        (Avoid repeated long-running calculus)
+· fun Function1 .memoized()           <-● MEMOIZATION  [[{performance.101]]
+      : (String) -> MyClass {
+                                           (Avoid repeated long-running calculus)
+    val map = ConcurrentHashMap<String, MyClass>()
     return {
       a -> map.getOrPut(a) {
         this.invoke(a)
       }
     }
-  }                                                      [[}]]
+  }                                       [[}]]
+[[functions}]]
 
-[[kotlin.functions}]]
-
-● Kotlin OOP [[{kotlin.oop]]
+● Kotlin OOP [[{oop]]
 • Kotlin Classes:
 @[https://kotlinlang.org/docs/reference/classes.html]
-- 'Any' : common superclass in Kotlin. NOTE:  It is NOT java.lang.Object;
-  it does not have any members other than equals(), hashCode() and toString().
+- 'Any' : common superclass in Kotlin.
+- It is NOT java.lang.Object;
+  it does not have any members other than
+  equals(), hashCode() and toString().
 
-- By default classses are final.
+- By default classses are final.  [[qa.101,qa.immutability]]
   Use syntax 'open class ...' to make them non-final
 
-● Composition over inheritance [[{kotlin.oop.composition,qa.best_patterns]]
+● COMPOSITION OVER INHERITANCE [[{oop.composition,qa.best_patterns]]
   Sometimes called delegation, where delegation is actually the dessign pattern
   and composition the standard/easiest way to implement it.
   - Inheritance means that child *IS A* parent. This claim fails to be true
@@ -586,7 +680,7 @@ typealias FamilyName = String     Q: Does it means that Address can be used as F
     If parent Person add a physical address Worker is not aware of it,
     it just keep a pointer.
 
-• Example Composition Implementation in Kotlin
+· Example Composition Implementation in Kotlin:
   interface IPerson { fun print() ... }
 
   class Person(val name: String, ...)
@@ -594,7 +688,7 @@ typealias FamilyName = String     Q: Does it means that Address can be used as F
     override fun print() { print(x) }
   }
 
-  class Employee(p: IPerson, ...)        "Employee" implements" Person
+  class Employee(p: IPerson, ...)        "Employee" implements" Person behaviour
         : IPerson  by  b              <- by passing through its p member.
 
   fun main(args: Array<String>) {
@@ -605,13 +699,18 @@ typealias FamilyName = String     Q: Does it means that Address can be used as F
                      ... )
     employee.print()                  <- "Shortcut" for employee.person.print()
   }
-[[kotlin.oop.composition}]]
+[[oop.composition}]]
 
-• Inheritance (discouraged) [[{kotlin.oop.inheritance]]
+• OOP Inheritance  [[{oop.inheritance]]
 
-  - Inheritance is just recomended when we can formally probe (after
+  - discouraged pattern except when we can formally probe (after
     publishing in a Journal-of-Mathematic paper) that child class
     IS ACTUALLY a base class.
+    - 'group', 'monoid', 'ring' are always a 'set' BY DEFINITION.
+    - 'triangle', 'square', .. are always a 'closed 2D shape'.
+      (but a physical triangle will soon stop being a 2D shape,
+       even if some 2D closed shape still apply. In that case use
+       delegation through composition).
 
   class Derived(p: Int)   :  Base(p)    <- Inheritance declaration
 
@@ -636,18 +735,27 @@ typealias FamilyName = String     Q: Does it means that Address can be used as F
     }
     val instance = MyClass.create()
   }
-[[kotlin.oop.inheritance}]]
-● SINGLETON OBJECTS       [[kotlin.oop.singleton]]
+[[oop.inheritance}]]
 
-  object  Resource {    <- Use object (vs class)
+                           ● SINGLETON OBJECTS  [[{oop.singleton,qa.101]]
+  object  Resource {         <- use 'object' instead of 'class'
     val name = "Name"
     fun method1(...) { ... }
     ...
   }
-  Resource.method1(...)   [[kotlin.oop.singleton]]
+  Resource.method1(...)   [[oop.singleton}]]
+
+                          ● COMPANION OJECTS ("static" methods in Java)
+  class Class1 {
+    companion object Fact01      <·· Companion object. 'Fact01' name can be omitted *1
+       : IFactory<Class1> {      <·· the companion object can (at will) implement an interface
+                                     (this is not possible with static methods in Java)
+      override fun create(): ...     Use @JvmStatic annotation for compatibility with Java
+    }                                *1: It can still be referenced with Class1.Companion
+  }
+  val instance = Class1.create() <·· In can be now used as an "static" method.
 
 ● COMPAQ CLASS DECLARATION [[{]]
-
   class Person(
     val firstName: String,   <- val/var in constructor define also members
     val lastName: String,
@@ -668,19 +776,9 @@ typealias FamilyName = String     Q: Does it means that Address can be used as F
         parent.children.add(this)
     }
   }
-
-● Class implementing a function-type as interface ("functional" class)
-
-  class IntTransformer
-      : ((Int) -> Int) {           <····
-      override
-      operator fun invoke(x: Int): Int = TODO()
-  }
-  val intFunction: ((Int) -> Int) = IntTransformer()
-
 [[}]]
 
-● SEALED CLASS  [[{kotlin.oop.sealed_class]]
+● SEALED CLASS  [[{oop.sealed_class]]
 @[https://kotlinlang.org/docs/reference/sealed-classes.html]
 - represent restricted class hierarchies or "sort of" enum extensions,
   with subclasses being able to have multiple instances.
@@ -697,9 +795,9 @@ typealias FamilyName = String     Q: Does it means that Address can be used as F
     is  Sum         -> eval(expr.e1) + eval(expr.e2)
         NotANumber  -> Double.NaN
   }
-[[kotlin.oop.sealed_class}]]
+[[oop.sealed_class}]]
 
-● INNER CLASS [[{kotlin.oop.inner_class]]
+● INNER CLASS [[{oop.inner_class]]
   window.addMouseListener(
       object : ListenerBase (            <······ Example 1.  Object expressions are a
       baseClassConstructorParam1,                generalization of anonymous inner classes:
@@ -712,13 +810,77 @@ typealias FamilyName = String     Q: Does it means that Address can be used as F
   interface B {...}                      <······ Example 2. [[{01_PM.TODO]]
   val ab: A = object : A(1),
               B { override ...  }                 [[}]]
-[[kotlin.oop.inner_class}]]
-[[kotlin.oop}]]
+[[oop.inner_class}]]
+[[oop}]]
 
-[[kotlin.101}]]
+● 'atomic' concurrent code: [[{concurrent.101]]
+  STM: Software transactional memory
+  Extracted from https://blog.plan99.net/kotlin-fp-3bf63a17d64a
+  JVM can support libraries like Scala STM and something better:
+  "...Modern (very modern as of 2015) Intel chips support 'TSX'
+  instructions to create an hardware atomic TX, controlling cache
+  lines accessed by different cores simultaneously.
+   In case of conflict, the CPU aborts the TX and expects the code to
+  try again or fall back to regular locking.
+    Java 8 Update 40, the "RTM locking" is enabled by default when the
+  CPU supports it converting every Java synchronized block into a
+  hardware level atomic transaction using TSX.
+  NOTE: STMs often provide extra features, like the
+        ability to pause/retry a code block when the
+        dependencies change, or the ability to explicitly
+        cancel a TX (by throwing) without retrying it.
+
+   val accounts = intArrayOf(10,..) <··· our critical structure
+   try {
+     atomic {                  <··· higher order function protected by Java 'synchronized'.
+       accounts[from] -= amount     immediately calling the provided code block. The JVM will ignore the
+       accounts[to] += amount       lock on TSX-enabled hardware with all threads running in parallel
+       if (...) throw ...           As long as two threads are using different account IDs for 'from'/'to'
+     }                              no locking is done at all.
+   } catch(e: Exception) {
+       println("counter is ${counter.get()}")        // -> 10
+   }
 
 
-● Kotlin Domain Specific Language (DSL) [[{kotlin.dsl]]
+  - Things Kotlin lacks (As of 2015)
+    - no way to control side effects for non const (val) variables.
+      or external inputs/outputs.
+   - lack of a high performance immutable collections library.
+     Both Clojure and Scala have maps and sets in which mutating the
+     collection returns a new collection, with internal data sharing
+     to make performance practical.
+[[concurrent.101}]]
+[[101}]]
+
+● Kotlin declaration-site variance: [[{generics]]
+  Read https://kotlinlang.org/docs/generics.html for more detailed info.
+                                        Source is covariant in O, contravariant in I.
+   interface Source<out O, in I> { <··· O is only returned (produced), never take as input param.
+                                        I is only taken as input (consumed) param, never returned.
+       fun nextT(): O              <··· out O may occur only in the out-position in the members of C
+       fun compareTo(other: T): Int<··· in  I may occur only in input-position params.
+   }
+
+
+  class Array<T>(val size: Int) {           <··· T now is an in and out. neither co/contra-variant
+      operator fun get(index: Int): T { ... }
+      operator fun set(index: Int, value: T) { ... }
+  }
+
+  fun copy(from: Array<Any>, to: Array<Any>)     <··· Will fail
+  fun copy(from: Array<out Any>, to: Array<Any>) <··· Will work, this is call "TYPE PROJECTION"
+
+  Type projection: "It is not a simple array, but is rather a restricted (projected) one"
+
+  Foo<out T : TUpper> <··· T is covariant type "up to" TUpper.
+  fun <T : Comparable<T>> sort(list: List<T>) {  ... }
+
+  if (something is List<*>) <··· '*' needed to check for types.
+[[generics}]]
+
+
+
+● Kotlin Domain Specific Language (DSL) [[{dsl]]
   · REFs:
     https://blog.jetbrains.com/kotlin/2011/10/dsls-in-kotlin-part-1-whats-in-the-toolbox-builders/
     https://kotlinlang.org/docs/reference/type-safe-builders.html
@@ -776,389 +938,194 @@ typealias FamilyName = String     Q: Does it means that Address can be used as F
   }
 
 
-[[kotlin.dsl}]]
+[[dsl}]]
 
-<pre zoom labels="performance,comparision">
-● Coroutines
-@[https://kotlinlang.org/docs/reference/coroutines.html]
+● kotlinx.serialization: marshal objects using JSON or ProtoBuf. [[{IO.serialization]]
+  https://github.com/kotlin/kotlinx.serialization
+
+  import kotlinx.serialization.*
+  import kotlinx.serialization.json.*
+
+  @Serializable
+  data class DProject(val name: String, val language: String)
+
+  val data1  = DProject("kotlinx", "Kotlin")
+  val strn1 = Json.encodeToString(data)    <··· Object -> JSON-string
+  val data2 = Json                         <··· Object <- JSON-string
+              .decodeFromString<DProject>(strn1)
+[[}]]
+
+● 'gradle.properties' to customize Kotlin settings:  [[{devops.gradle]]
+  REF: https://kotlinlang.org/docs/reference/using-gradle.html
+  kotlin.code.style=official
+  kotlin.caching.enabled=true
+  kotlin.incremental=true
+  kotlin.incremental.js=true
+
+  kapt.use.worker.api=true     <··· REF:
+  kapt.incremental.apt=true         https://kotlinlang.org/docs/reference/kapt.html
+[[devops.gradle}]]
+
+● Coroutines  [[{coroutines,02_doc_has.comparative,performance]]
 - experimental starting with v.1.1+
-- See also Design documents and examples for coroutines in Kotlin
-@[https://github.com/Kotlin/kotlin-coroutines]
-@[https://github.com/Kotlin/kotlinx.coroutines/blob/master/coroutines-guide.md#composing-suspending-functions]
 - Basically, coroutines are computations that can be suspended without blocking
   a thread.
-  - Suspension can be controlled by a user library to a large extent deciding
-    what happens upon suspension and optimize/log/intercept according to our needs.
+- Suspension can be controlled by a user library to a large extent deciding
+  what happens upon suspension and optimize/log/intercept according to our needs.
 
 - Compared to threads, coroutines can not be suspended at random instructions,
   but rather only at defined suspension points, which are calls to specially
-  marked functions
-//   suspend  marks the function as a suspension point
-// can ONLY be called from coroutines and other suspending functions
+  marked functions.
 
-  suspend  funs doSomething(foo: Foo): Bar {
-    ...
-}
+  suspend fun  susA(foo: Foo)    <·· 'suspend' marks the function as a suspension point
+               : Bar {               funA can ONLY be called from coroutines and other
+    ...                              suspending functions
+  }
 
 - To start a coroutine, there must be at least one suspending function,
     and it is usually a suspending lambda. Ex:
-// Ex.simplified async() function (from kotlinx.coroutines library):
-fun <T> async(  block :      suspend () -> T)
-//      ^                 +----------------+
-//      +async() is a     lambda suspendable funct
-//      regular function
 
-Ussage:
-async {
-    doSomething(foo)
-    ...
-}
+             ┌·····················  async is a regular function
+             │                    ┌ lambda suspendable funct
+           ┌─┴─┐             ┌────┴───────┐
+   fun <T> async(  block :  suspend () -> T)
 
-- Continuing with the analogy, await() can be a suspending function
-     that suspends a coroutine until some computation is done and returns its
-     result:
-async {
-    ...
-    val result = computation.await()
-    ...
-}
+   Suspendable functions USSAGE rules:
+   - suspending functions canNOT be called from function literals that
+     are NOT inlined into a suspending function body and from regular
+     function like main():
 
-- Async blocking calls are expressed sequentially with coroutines, and the underlying
-   library will take care of any complexity (wrap relevant parts into callbacks, subscribing
-   to relevant events, scheduling execution on different threads (or even different machines!)
-- Can be used to implement async mechanisms like async/await in C#/ECMAScript, channels/select in Go,
-    and generators/yield in C#/Python
-- Note that suspending functions await() and doSomething() cannot be called from function
-literals that are not inlined into a suspending function body and from regular function like main():
-fun main(args: Array<String>) {
-    doSomething() // ERROR: Suspending function called from a non-coroutine context
+   fun main(args: Array<String>) {
+     susA()                         <·· ERROR: Can NOT be called from a non-coroutine context
+     async {
+       susA(foo)                    <·· OK:  We can now call the suspendable function susA
+       ...
+       val result =                     await() can be a suspending function
+          computation.await()       <·· suspending the coroutine until some
+                                        computation is done and returns its
+       ...
+       computationsO .forEach {     <·· lambda is inlined.
+           it.await()               <·· OK!! Async. blocking calls can now
+       }                                be expressed sequentially
+     }
 
-    async {
-        ...
-        computationsO .forEach {
-            // `forEach` is an inline function, the lambda is inlined
-            it.await() // OK
-        }
+     async {
+       thread {
+         susA()                    <·· ERROR, `thread` is not an inline function
+       }                               so the lambda is not inlined
+     }
+   }
 
-        thread {
-            // `thread` is not an inline function, so the lambda is not inlined
-            doSomething() // ERROR
-        }
-    }
-}
+   @RestrictsSuspension            <·· prevent users from adding new ways of suspending a coroutine
+   public abstract class              all suspending extensions are required to delegate to
+      SequenceBuilder<in T> {         members of class or class-extensions avoid third extensions
+       ...                            to delegate on each other indefinitely and forcing all
+   }                                  suspensions to be controlled by members of the class.
+                                      controlled by the author of the library.
 
-- @RestrictsSuspension to prevent users from adding new ways of suspending a coroutine
-@RestrictsSuspension
-public abstract class SequenceBuilder<in T> {
-    ...
-}
-     When a receiver class or interface R is annotated with it, all suspending extensions
-   are required to delegate to either members of R or other extensions to it.
-   Since extensions can't delegate to each other indefinitely (the program would
-   not terminate), this guarantees that all suspensions happen through calling
-   members of R that the author of the library can fully control.
+  ┌ [[{02_doc_has.KEY-POINT]] ─────────────────────────────────────────┐
+  │ the underlying library will transparently hide all the complexity  │
+  │ of wrapping callbacks, subscribing to relevant events, scheduling  │
+  │ execution on different threads (or even different machines!)       │
+  │                                                                    │
+  │ It can be used to implement async mechanisms like async/await in   │
+  │ C#/ECMAScript, channels/select in Go, generators/yield in C#/Python│
+  └─^──────────────────────────────────────────────────────────────[[}]]
+    inner workings:
+    - Coroutines are completely implemented through a compilation technique
+      (NO SUPPORT FROM THE VM OR OS SIDE IS REQUIRED), and suspension
+      works through code transformation.
+     ┌ [[{02_doc_has.KEY-POINT]] ──────────────────────────────────────────────┐
+     │ Briefly, every suspending function is transformed to a state machine    │
+     │ where states correspond to suspending calls. Right before a suspension, │
+     │ the next state is stored in a field of a compiler─generated class       │
+     │ along with relevant local variables, etc.                               │
+     │ Upon resumption of that coroutine, local variables are restored and the │
+     │ state machine proceeds from the state right after suspension.           │
+     └─────────────────────────────────────────────────────────────────────[[}]]
+    - A suspended coroutine can be stored and passed around as an object
+     that keeps its suspended state and locals. The type of such objects is
+     Continuation, and the overall code transformation described here corresponds to
+     the classical Continuation-passing style. Consequently, suspending functions
+     take an extra parameter of type Continuation under the hood.
 
+- See also Design documents and examples for coroutines in Kotlin
+@[https://github.com/Kotlin/kotlin-coroutines]
+@[https://github.com/Kotlin/kotlinx.coroutines/blob/master/coroutines-guide.md#composing-suspending-functions]
 
-
-● inner workings
-- Coroutines are completely implemented through a compilation technique
-     (no support from the VM or OS side is required) , and suspension
-    works through code transformation. Briefly, every suspending function
-    is transformed to a state machine where states correspond to suspending
-    calls. Right before a suspension, the next state is stored in a field of
-    a compiler-generated class along with relevant local variables, etc.
-    Upon resumption of that coroutine, local variables are restored and the
-    state machine proceeds from the state right after suspension.
-
-- A suspended coroutine can be stored and passed around as an object
-    that keeps its suspended state and locals. The type of such objects is
-    Continuation, and the overall code transformation described here corresponds to
-    the classical Continuation-passing style. Consequently, suspending functions
-    take an extra parameter of type Continuation under the hood.
-</pre>
-
-<pre zoom>
-● buildSequence()
-- Kotlin v.1.2.41+
-- Implement generators, cheap way to build a lazy/on-demand sequence:
-// See also buildIterator(). Similarly to buildSequence() but returns a lazy iterator
-val fibonacciSeq = buildSequence {
-    var a = 0
-    var b = 1
-    yield(1)
-    while (true) {
-        yield(a + b)
-        val tmp = a + b
-        a = b
-        b = tmp
-    }
-}
-
-// Ex ussage:
-fibonacciSeq.take(8).toList() // == [1, 1, 2, 3, 5, 8, 13, 21]
-
-- To yield a collection (or sequence) of values at once use yieldAll():
-val lazySeq = buildSequence {
-    yield(0)
-    yieldAll(1..10)
-}
-
-</pre>
-<pre zoom labels="performance">
-● kotlinx.coroutines
+• kotlinx.coroutines [[{01_PM.TODO]]
+@[https://kotlinlang.org/docs/reference/coroutines.html]
 @[https://github.com/Kotlin/kotlinx.coroutines/blob/master/coroutines-guide.md]
-- This mostly consists of core primitives and interfaces that all coroutine-based
-    libraries are likely to use covering
+  This repo mostly consists of core primitives and interfaces that all coroutine-based
+  libraries are likely to use covering:
   - Platform-agnostic asynchronous programming with kotlinx-coroutines-core,
-      including Go-like channels that support select and other convenient
-      primitives
+    including Go-like channels that support select and other convenient
+    primitives.
   - APIs based on CompletableFuture from JDK 8: kotlinx-coroutines-jdk8
-  - Non-blocking IO (NIO) based on APIs from JDK 7 and higher: kotlinx-coroutines-nio
-  - Support for Swing (kotlinx-coroutines-swing) and JavaFx (kotlinx-coroutines-javafx)
-  - Support for RxJava: kotlinx-coroutines-rx
-</pre>
+  - Non-blocking IO (NIO) based on APIs from JDK 7 and higher:
+    kotlinx-coroutines-nio
+  - Support for Swing (kotlinx-coroutines-swing) and JavaFx
+    (kotlinx-coroutines-javafx)
+  - Support for RxJava: kotlinx-coroutines-rx [[}]]
+[[coroutines}]]
 
-<div groupv>
-<pre zoom>
-● Micro-shell
-● (REP Loop)
-//  reads, tokenise and execute command
-
-// https://discuss.kotlinlang.org/t/k2jvmcompiler/3629
-private val REGEX_WHITESPACE_SEPARATED_TOKENS = Regex("[ \t]+")
-
-// returns all tokens delimited by whitespace
-private fun   parseLine (shellInput : String) : List<String> =
-    shellInput.split(REGEX_WHITESPACE_SEPARATED_TOKENS).filter { !it.isEmpty()}
-
-private fun _command01(args : List<String>) = /* ... */ "OK"
-private fun _command02(args : List<String>) = /* ... */ "OK"
-
-private val USSAGE = """USSAGE EXAMPLES: ...""".trimMargin()
-
-fun main(args: Array<String>) {
-      while (true) { // MAIN LOOP
-        print("~ ") // print shell prompt
-        val lineTokens = parseLine(readLine() ?: continue)
-        if (lineTokens.size == 0) continue
-        val action = lineTokens[0]
-        if ( action == "quit") break
-        val args : List<String> = if (lineTokens.size == 0) listOf() else
-            lineTokens.subList(1,lineTokens.size)
-
-        val ouput : String = if (false) ""
-            else if (action == "command01" ⅋⅋ args.size>=1) _command01(args)
-            else if (action == "command02" ⅋⅋ args.size>=1) _command02(args)
-            else USSAGE
-        System.err.println(ouput)
-      }
-}
-</pre>
-
-<pre zoom labels="">
-● kscript
+● kscript (Kotlin as script lang)  [[{qa.UX,01_PM.TODO.now]]
 @[https://github.com/holgerbrandl/kscript]
-(Kotlin as script lang)
-See also <a href="https://holgerbrandl.github.io/kscript_kotlinconf_2017/kscript_kotlinconf.html#1">Presentation@KotlinConf2017</a>
-- Compiled script caching (using md5 checksums)</li>
-- Dependency declarations using gradle-style resource locators and automatic dependency resolution with maven
-- More options to provide scripts including interpreter mode, reading from stdin, local files or URLs
-- Embedded configuration for Kotlin runtime options
-- Support library to ease the writing of Kotlin scriptlets
-- Deploy scripts as stand-alone binaries
-</pre>
-</div>
+  See also
+@[https://holgerbrandl.github.io/kscript_kotlinconf_2017/kscript_kotlinconf.html#1]
+  - Compiled script caching (using md5 checksums).
+  - Dependency declarations using gradle-style resource locators and
+    automatic dependency resolution with maven
+  - More options to provide scripts including interpreter mode,
+    reading from stdin, local files or URLs
+  - Embedded configuration for Kotlin runtime options
+  - Support library to ease the writing of Kotlin scriptlets
+  - Deploy scripts as stand-alone binaries
+[[qa.UX}]]
 
+NON CLASSIFIED NOTES [[{01_PM.TODO.non_classified]]
+● kotlin.test: (out of the box in Kotlin 1.2+)
+  http://kotlinlang.org/api/latest/kotlin.test/index.html
+  write test once under JVM and JS.
 
-</body>
-</html>
-<!--
-TODO_start
-TODO: Lazy property:
-  val p: String by lazy { // compute the string }
+● https://github.com/kotlin/kotlinx.html
+  - supports ISOMORPHIC RENDERING, using the same code to
+    render HTML in the backend and in the frontend;
 
-__________________________
-TODO: If you need to write a function that can be called without having a class instance
-but needs access to the internals of a class (for example, a factory method), you
-can write it as a member of an object declaration
-(https://kotlinlang.org/docs/reference/object-declarations.html) inside that class.
-Even more specifically, if you declare a companion object
-(https://kotlinlang.org/docs/reference/object-declarations.html#companion-objects)
-inside your class, you'll be able to call its members with the same syntax as calling
-static methods in Java/C#, using only the class name as a qualifier.
-____________________________
-Use Kotlin with npm, webpack and react:
-  https://blog.jetbrains.com/kotlin/2017/04/use-kotlin-with-npm-webpack-and-react/
-____________________________
-<span xbig>// Checking ranges:
-<pre>
-if (x in 1...y+1) { println("OK") }
+● https://medium.com/blockchain-engineering/kotlin-akka-part-1-hello-kotlin-a0c0de7d7407
 
-for (x in 1..10       step 2) { print(x) }
-for (x in 10 downTo 0 step 2) { print(x) }
-for (idx          in array.indices)     { println(array[idx])       }
-for ((idx, value) in array.withIndex()) { println("$idx -> $value") }
-for ((key, value) in map              ) { println("$key -> $value") }
-fruits.filter { it.startsWith("a") }.sortedBy { it }.
-    map { it.toUpperCase() }.forEeach( println(it) )
+● https://es.slideshare.net/IldarNurgaliev/kotlin-compiler-construction-very-brief
 
-val arrayOfMinusOnes: Array = IntArray(20).apply{fill(-1)} //
-</pre >
+● https://blog.jetbrains.com/kotlin/2018/09/kotlin-1-3-rc-is-here-migrate-your-coroutines
+● https://blog.jetbrains.com/kotlin/2017/12/kotlinnative-v0-5-released-calling-kotlin-from-swift-and-c-llvm-5-and-more/
+  Kotlin/Native v0.5 released: calling Kotlin from Swift and C, LLVM 5 and more
+● https://developers.redhat.com/blog/2018/12/24/using-a-kotlin-based-grpc-api-with-envoy-proxy-for-server-side-load-balancing/
+● https://javalin.io [[{IO.http.javalin,qa.UX}]]
+● https://www.infoq.com/articles/kotlin-multiplatform-ios-developers/
+  Kotlin Multiplatform for iOS Developers
+    Using Kotlin Multiplatform, you can avoid repeating lots of logic
+  to develop an app running on multiple platforms.
+    KMP is not the final step to accomplishing 100% shared code across
+  all platforms since UI logic must still be programmed natively in
+  many cases because it is too platform-specific to share.
+    The close similarities between Swift's and Kotlin's syntax greatly
+  reduces a massive part of the learning curve involved with writing
+  that KMP business logic.
+    You can use Android Studio to create a reusable KMP component that
+  you later import into an Xcode project as a framework.
 
-____________________________
-<pre>
-fun foo() {
-  // Alt 1. lambda function
-  ints.forEach lit@ {
-    // returns from foo
-    if (it == 0) return
-    // returns from lambda lit@
-    if (it == 1) return@lit
-    // returns from lambda lit@ (implicit label)
-    if (it == 2) return@forEach
-    print(it)
-  }
-  // Alt 2. anonymous function
-  ints.forEach( func(value: Int) {
-    // local returns from  anonymous funct
-    if (it == 0) return
-    print(value)
-  }
-}
-_______________________
-mainLoop@ for (i in 1..100) { // <- any expresion can be marked with a  label ("identifier"@)
-  for (j in 1..100) {
-    if (j == 55) break@loop // jumps right after the loop marked with label
-  }
-}
-</pre>
+● https://allegro.tech/2018/05/From-Java-to-Kotlin-and-Back-Again.html
 
-
-<!--
-<a href="http://kotlinlang.org/api/latest/kotlin.test/index.html">kotlin.test</a>, included out of the box in Kotlin 1.2, lets you write your test once and run it under both the JVM and JS;
-<a href="https://github.com/kotlin/kotlinx.html">kotlinx.html</a> supports <strong>isomorphic rendering</strong> – using the same code to render HTML in the backend and in the frontend;
-<a href="https://github.com/kotlin/kotlinx.serialization">kotlinx.serialization</a> allows you to easily marshal Kotlin objects between different tiers of your application, using JSON or ProtoBuf as serialization formats.
-
-What's new in Koltin 1.2:
-http://kotlinlang.org/docs/reference/whatsnew12.html
-
-____________________
-Warnings as errors
-
-The compiler now provides an option to treat all warnings as errors. Use -Werror on the command line, or the following Gradle snippet:
-
-compileKotlin {
-    kotlinOptions.allWarningsAsErrors = true
-}
-__________________________
-https://kotlinlang.org/docs/reference/native-overview.html
-
-https://github.com/JetBrains/kotlin-native/blob/master/samples/tensorflow/src/main/kotlin/HelloTensorflow.kt
-
-
-__________________
-<pre zoom labels="">
-https://kotlin.es/2015/11/kotlin-koans-repositorio-de-ejercicios-oficiales/#
-<p>###Introduction [13/42] Koans</p>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#hello-world">Hello World!</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#java-to-kotlin-conversion">Java to Kotlin conversion</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#named-arguments">Named arguments</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#default-arguments">Default arguments</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#lambdas">Lambdas</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#strings">Strings</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#data-classes">Data classes</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#nullable-types">Nullable types</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#smart-casts">Smart casts</a> <? Nivel 1
-- <a href="https://github.com/vicboma1/Kotlin-Koans#extension-functions">Extension functions</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#object-expressions">Object expressions</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#sam-conversions">SAM conversions</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#extensions-on-collections">Extensions on collections</a>
-</pre>
-<p>###Collections [25/42] Koans</p>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#introduction">Introduction</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#filter-map">Filter map</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#all,any,count,firstornull">All, Any, Count, FirstOrNull</a> <? Nivel 2
-- <a href="https://github.com/vicboma1/Kotlin-Koans#flatmap">FlatMap</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#maxmin">Max min</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#sort">Sort</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#sum">Sum</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#group-by">Group by</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#partition">Partition</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#fold">Fold</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#compoundtasks">Compound tasks</a> <? Nivel 3
-- <a href="https://github.com/vicboma1/Kotlin-Koans#getusedtonewstyle">Get used to new style</a>
-<p>###Conventions [32/42] Koans</p>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#comparison">Comparison</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#in-range">In range</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#range-to">Range to</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#for-loop">For loop</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#operators-overloading">Operators overloading</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#multi-assignment">Multi assignment</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#invoke">Invoke</a> <? Nivel 4
-<p>###Properties [36/42] Koans</p>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#properties">Properties</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#lazy-property">Lazy property</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#delgates-examples">Delegates examples</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#delegates-how-it-works">Delegates how it works</a>
-<p>###Builders [41/42] Koans</p>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#extension-function-literals">Extension function literals</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#string-and-map-builders">String and map builders</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#the-function-with">The function with</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#html-builders">Html builders</a>
-- <a href="https://github.com/vicboma1/Kotlin-Koans#builders-how-it-works">Builders how it works</a>
-_________________
-https://blog.plan99.net/kotlin-fp-3bf63a17d64a
-Kotlin "loves" Functional Programming
-_________________
-https://www.infoq.com/news/2018/08/airbnb-mvrx-android-framework
-https://github.com/airbnb/MvRx/wiki
-
-    Kotlin
-    Android Architecture Components
-    RxJava
-    React (conceptually)
-    Epoxy (optional but recommended)
-__________________________
-https://medium.com/blockchain-engineering/kotlin-akka-part-1-hello-kotlin-a0c0de7d7407
-___________________________
-REF: https://www.infoq.com/news/2018/10/kotlin-pinterest
-InfoQ: What organizational challenges did Pinterest face during the adoption of Kotlin? How did Pinterest overcome these challenges?
-
-    Lee:  One of the biggest challenges we faced during the adoption of Kotlin was ongoing issues with Kapt (the Kotlin annotation processor) and other build related issues. We would find ourselves with errors in our CI build environs, as well as frequent build failures when switching branches locally because build state was not getting properly cleared out. There was a point where some senior engineers were even advocating removing the language because of these problems. Some of these difficulties were the growing pains of adopting a young language -- Kapt itself had bugs and flaws that were inherent in the tool -- and not something anyone in our org could fix. These types of issues resolved as Kapt and the associated build tools improved, but in many engineers' minds, Kotlin was associated with build instability, which colored their opinion of the language.
-
-    However, another portion of these issues was a result of the inevitable blind spots that come when working with a new technology for the first time. These were issues that we had the ability to solve internally, and we did so through a concerted focus on education. An example of this was a common issue we saw at compile time where a developer would forget an import statement or make some other error unrelated to Kotlin but would have difficulty finding this error in the build output because of the way Kapt was outputting information in Android Studio. Teaching people where to find the real compile-time error gave them the knowledge necessary to navigate such failures on their own. To help with this class of issues, the team set up several Slack channels specifically for asking questions about Kotlin or the build and set a precedent that all questions were always welcome and would be responded to. Teaching the team how new components such as Kapt worked, what certain types of errors signaled, and where to start looking for resolutions went a long way in easing the pain of the transition.
-___________________________
-https://es.slideshare.net/IldarNurgaliev/kotlin-compiler-construction-very-brief
-________________________
-https://blog.jetbrains.com/kotlin/2018/09/kotlin-1-3-rc-is-here-migrate-your-coroutines
-___________________
-https://blog.jetbrains.com/kotlin/2017/12/kotlinnative-v0-5-released-calling-kotlin-from-swift-and-c-llvm-5-and-more/
-Kotlin/Native v0.5 released: calling Kotlin from Swift and C, LLVM 5 and more
-___________________
-https://developers.redhat.com/blog/2018/12/24/using-a-kotlin-based-grpc-api-with-envoy-proxy-for-server-side-load-balancing/
-____________
-https://javalin.io
-_________________________
-https://www.infoq.com/articles/kotlin-multiplatform-ios-developers/
-Kotlin Multiplatform for iOS Developers
-
-Using Kotlin Multiplatform, you can avoid repeating lots of logic to develop an app running on multiple platforms.
-KMP is not the final step to accomplishing 100% shared code across all platforms since UI logic must still be programmed natively in many cases because it is too platform-specific to share.
-The close similarities between Swift's and Kotlin's syntax greatly reduces a massive part of the learning curve involved with writing that KMP business logic.
-You can use Android Studio to create a reusable KMP component that you later import into an Xcode project as a framework.
-__________________
-https://allegro.tech/2018/05/From-Java-to-Kotlin-and-Back-Again.html
-_________________________
-https://kotlinlang.org/docs/reference/sequences.html
-long with collections, the Kotlin standard library contains another container type – sequences (Sequence<T>). Sequences offer the same functions as Iterable but implement another approach to multi-step collection processing.
+● https://kotlinlang.org/docs/reference/sequences.html
+  long with collections, the Kotlin standard library contains another container type – sequences (Sequence<T>). Sequences offer the same functions as Iterable but implement another approach to multi-step collection processing.
 
 When the processing of an Iterable includes multiple steps, they are executed eagerly: each processing step completes and returns its result – an intermediate collection. The following step executes on this collection. In turn, multi-step processing of sequences is executed lazily when possible: actual computing happens only when the result of the whole processing chain is requested.
 
 The order of operations execution is different as well: Sequence performs all the processing steps one-by-one for every single element. In turn, Iterable completes each step for the whole collection and then proceeds to the next step.
 
 So, the sequences let you avoid building results of intermediate steps, therefore improving the performance of the whole collection processing chain. However, the lazy nature of sequences adds some overhead which may be significant when processing smaller collections or doing simpler computations. Hence, you should consider both Sequence and Iterable and decide which one is better for your case.
-________________________________
-https://www.infoq.com/articles/kotlin-coroutines-bottom-up
+
+● https://www.infoq.com/articles/kotlin-coroutines-bottom-up
 Key Takeaways
 - The JVM does not provide native support for coroutines
 - Kotlin implements coroutines in the compiler via transformation to a state machine
@@ -1166,41 +1133,36 @@ Key Takeaways
 - Kotlin uses Continuation Passing Style (CPS) to implement coroutines
 - Coroutines use Dispatchers, so are used slightly differently in JavaFX, Android, Swing, etc
 
-• Google Protocol Buffers Support Idiomatic Kotlin Bindings
+● Google Protocol Buffers Support Idiomatic Kotlin Bindings [[{IO.grpc]]
   https://www.infoq.com/news/2021/12/protocol-buffers-kotlin-dsl/
+[[}]]
 
-• Kotlin: 1.6.0 Released
-  https://www.infoq.com/news/2021/12/kotlin-1-6-0-released/
-
-• Kotlin: JetBrains Debuts New Kotlin Compiler K2, Kotlin for WebAssembly, and More
-  https://www.infoq.com/news/2021/11/jetbrains-k2-compiler-kotlin/
-
-• Multiplatform Native Development In Kotlin
-  @[https://blog.kotlin-academy.com/multiplatform-native-development-in-kotlin-now-with-ios-a8546f436eec]
-• https://www.infoworld.com/article/3236419/development-tools/kotlin-frameworks-a-survey-of-jvm-development-tools.html#tk.ifw-infsb
+● https://www.infoworld.com/article/3236419/development-tools/kotlin-frameworks-a-survey-of-jvm-development-tools.html#tk.ifw-infsb
   Kotlin Frameworks survey
-• org.jetbrains.kotlin artifacts at Maven Central:
+
+● org.jetbrains.kotlin artifacts at Maven Central:
   https://search.maven.org/#search%7Cga%7C3%7Corg.jetbrains.kotlin
-• Annotation Processing with Kotlin
+
+● Annotation Processing with kapt plugin (Use Dagger,... in Kotlin)
   https://kotlinlang.org/docs/reference/kapt.html
   Annotation processors (see JSR 269) are supported in Kotlin with the kapt
   compiler plugin. Being short, you can use libraries such as Dagger or Data
   Binding in your Kotlin projects.
-• Kotlin Koans Excercises (Basic, Collections, conventions, properties, builders, generics)
-  https://github.com/Kotlin/kotlin-koans/tree/master/src
 
-• Kotlin: Android Developers Blog: Accelerated Kotlin build times with Kotlin Symbol Processing 1.0
+● Kotlin: Android Developers Blog: Accelerated Kotlin build times with Kotlin Symbol Processing 1.0
   https://android-developers.googleblog.com/2021/09/accelerated-kotlin-build-times-with.html?m=1
 
-• The Road to Kotlin 1.5
-  https://www.infoq.com/news/2021/03/the-road-to-kotlin-1-5/
+● public class MyTest {
+    lateinit var subject: TestSubject        <··· lateinit: non-null property that can NOT be initialized in constructor
+                                                  (init through dependency injection framework ,...)
+    @SetUp fun setup() {                          but we still want to avoid null checks. If property has not
+        subject = TestSubject()                   custom getters/setters we can use it as non-null anywhere except in
+    }                                             constructor.
+                                                  Accessing it before init. throws an special exception
+    @Test fun test() {                            that clearly identifies the issue.
+        subject.method()  // dereference directly
+    }
+}
 
-• https://kotlinlang.org/docs/ranges.html#progression  101
-
-• interface Foo<out T : Any> : Bar {                  ← T
-      fun foo(a: Int): T                                 ← instance: => instance ←→ type
-  }
-
-
-
+[[01_PM.TODO.non_classified}]]
 [[kotlin}]]
