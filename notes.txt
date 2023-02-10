@@ -940,7 +940,7 @@ println("length of string is .... ${s.length()}")
 
 [[dsl}]]
 
-● kotlinx.serialization: marshal objects using JSON or ProtoBuf. [[{IO.serialization]]
+● kotlinx.serialization: marshal objects using JSON or ProtoBuf. [[{IO.serialization,JSON,]]
   https://github.com/kotlin/kotlinx.serialization
 
   import kotlinx.serialization.*
@@ -1100,7 +1100,37 @@ NON CLASSIFIED NOTES [[{01_PM.TODO.non_classified]]
 ● https://blog.jetbrains.com/kotlin/2017/12/kotlinnative-v0-5-released-calling-kotlin-from-swift-and-c-llvm-5-and-more/
   Kotlin/Native v0.5 released: calling Kotlin from Swift and C, LLVM 5 and more
 ● https://developers.redhat.com/blog/2018/12/24/using-a-kotlin-based-grpc-api-with-envoy-proxy-for-server-side-load-balancing/
-● https://javalin.io [[{IO.http.javalin,qa.UX}]]
+● https://javalin.io [[{IO.http.javalin,qa.UX,qa.documentation,01_PM.low_code]]
+  - Javalin support OpenAPI (including Swagger UI and ReDoc).
+  - Built on top of Jetty.
+  - 7k lines of code, 10k lines of tests!!!
+  - No need to extend classes and rarely need for new interfaces.
+  - Used by Johns Hopkins Institute, Microsoft, Red Hat, Norwegian University of Science and Techology,
+    Uber, Deutsche Kredibank AG, C6BANK, ...
+  - Web Sockets supports
+  - ┌─ example.kt ──────────────────────────────────────────
+    │ // Deps: implementation "io.javalin:javalin:5.3.1"
+    │ import io.javalin.Javalin;
+    │ import io.javalin.apibuilder.ApiBuilder.*;
+    │
+    │ val app = Javalin.create { config ->
+    │     config.enableCorsForAllOrigins()
+    │     config.asyncRequestTimeout = 10_000L
+    │     config.enforceSsl = true
+    │ }.routes {
+    │     path("users") {
+    │         get(UserController::getAll)
+    │         post(UserController::create)
+    │         path("{userId}") {
+    │             get(UserController::getOne)
+    │             patch(UserController::update)
+    │             delete(UserController::delete)
+    │         }
+    │         ws("events", userController::webSocketEvents)
+    │     }
+    │ }.start(port)
+    └───────────────────────────────────────────────────────
+  [[IO.http.javalin}]]
 ● https://www.infoq.com/articles/kotlin-multiplatform-ios-developers/
   Kotlin Multiplatform for iOS Developers
     Using Kotlin Multiplatform, you can avoid repeating lots of logic
