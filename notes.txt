@@ -1,4 +1,4 @@
-● APROPOS:
+# APROPOS:
 - Visit next Web site for a great experience:
   https://earizon.github.io/txt_world_domination/viewer.html?payload=../Kotlin/notes.txt
 
@@ -10,7 +10,7 @@
 ────────────────────────────────────────────────────────────────────────────────
 
 [[{kotlin]]
-● External Links [[{]]
+# External Links [[{]]
 · @[https://kotlinlang.org/docs/reference/]
 · @[https://www.kotlindevelopment.com/]
 · @[https://kotlinlang.org/docs/resources.html]
@@ -68,7 +68,7 @@ println("length of string is .... ${s.length()}")
 
 
 
-● MICRO-SHELL, REPL : (R)ead, (e)valuate, (p)arse, (L)oop  [[{101.REPL]]
+# MICRO-SHELL, REPL : (R)ead, (e)valuate, (p)arse, (L)oop  [[{101.REPL]]
   REF: https://discuss.kotlinlang.org/t/k2jvmcompiler/3629
   ┌ REPL example ───────────────────────────────┐
   │ private val                                 │
@@ -109,7 +109,7 @@ println("length of string is .... ${s.length()}")
   └─────────────────────────────────────────────┘        [[101.REPL}]]
 
 
-● STANDARD FUNCTIONS (no import required) [[{std_fun]]
+# STANDARD FUNCTIONS (no import required) [[{std_fun]]
  ┌─ apply ───────────────────────
   val task = Runnable { ... }
   Thread(task)
@@ -156,7 +156,7 @@ println("length of string is .... ${s.length()}")
 
   repeat(10, { println("Hello") }) ● repeat: Avoid "for" for simple operations
 
-● KOTLIN DATA STRUCTURES [[{data_structures]] [[ $ TODO: move to correct place ]]
+# KOTLIN DATA STRUCTURES [[{data_structures]] [[ $ TODO: move to correct place ]]
   BASIC TYPES [[{data_structures.standard_types]]
   * Long/Int/Short/Byte(64,32,16,8)  <- Numerical.
   * val c: Char = '\uFF00',          <- Chars
@@ -212,7 +212,7 @@ println("length of string is .... ${s.length()}")
 
   [[data_structures.sequences}]]
 
-● typealias: [[{qa,performance]]
+# typealias: [[{qa,performance]]
 - Rename a given type with a new alias.
   The alias is simply replaced by the compiler.
   This means that new types are not created or allocated,
@@ -225,7 +225,7 @@ println("length of string is .... ${s.length()}")
 ***************
 * COLLECTIONS *     [[{data_structures.collections]]
 ***************
-● Arrays vs List<T>     [[{02_doc_has.comparative]]
+# Arrays vs List<T>     [[{02_doc_has.comparative]]
             └──△──┘
       ┌────────┴───────┬───────────────────┬───···
   MutableList<T>   ArrayList<T>        LinkedList<T>
@@ -317,7 +317,7 @@ println("length of string is .... ${s.length()}")
   val longSet: MutableSet<Long> = mutableSetOf(1, 2, 3)
   [[data_structures.collections}]]
 
-● KOTLIN RANGES: [[{data_structures.ranges]]
+# KOTLIN RANGES: [[{data_structures.ranges]]
   """... Ranges are NOT a real data structure, but
     mathematical closed-intervals with well defined operations.
     In practice the can be seen as some sort of iterable lists. """
@@ -336,7 +336,7 @@ println("length of string is .... ${s.length()}")
   for (n in (1..4).reversed())  { ... }
                [[data_structures.ranges}]]
 
-● data class (DTO)  [[{data_structures.data_class]]
+# data class (DTO)  [[{data_structures.data_class]]
   automatically generates:
   - getters (and setters for vars),
   - equals(), hashCode(), toString(), copy()
@@ -362,7 +362,7 @@ println("length of string is .... ${s.length()}")
     println(str)
   }                                          [[}]]
 
-● Regular Expresions (Regex) [[{regex]]
+# Regular Expresions (Regex) [[{regex]]
 @[https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.text/-regex/]
   // Matching and finding the groups in Kotlin:
 
@@ -374,7 +374,7 @@ println("length of string is .... ${s.length()}")
       println(matchGroups.group())
 [[}]]
 
-● KOTLIN: AVOIDING NULLS  [[{qa.billion_dolar_mistake]]
+# KOTLIN: AVOIDING NULLS  [[{qa.billion_dolar_mistake]]
 @[https://kotlinlang.org/docs/reference/null-safety.html]
   val nullable01 : String? = "abc"     <- nullables must be declared explicetelly with <Type>?
 
@@ -420,7 +420,7 @@ println("length of string is .... ${s.length()}")
    else         -> "Unknown"
  }
 
-● Strings 101 [[{strings]]
+# Strings 101 [[{strings]]
 
   val s1 = "Hello World  $A !"       <- String template
   "col1:  ${ s1.replace("A", "B") } $d"
@@ -437,7 +437,7 @@ println("length of string is .... ${s.length()}")
            .joinToString(",")
 [[strings}]]
 
-● INTERFACES [[{interfaces]]
+# INTERFACES [[{interfaces]]
   interface Iface1<out T : Any> {            INTERFACE DEFINITION
       val prop1: Int                 <- Properties can be part of the interface.
       val prop2: String
@@ -453,7 +453,7 @@ println("length of string is .... ${s.length()}")
     override val prop: Int = 29
   }
 
-• SINGLE-METHOD-INTERFACE PATTERN (Similar to that use in GO and other modern languages)
+## SINGLE-METHOD-INTERFACE PATTERN (Similar to that use in GO and other modern languages)
   (Runnable, Callable, Closeable, Comparator, ...)
   val threadPool = Executors.newFixedThreadPool(4)
 
@@ -468,7 +468,7 @@ println("length of string is .... ${s.length()}")
   )                             in  <<Runnable>>>
 [[interfaces}]]
 
-● KOTLIN FUNCTIONS   [[{functions]]
+# KOTLIN FUNCTIONS   [[{functions]]
 @[https://kotlinlang.org/docs/reference/functions.html]
         (Int) -> String       <··· function type signature:
                                    Input  is Int, Output is String
@@ -550,7 +550,7 @@ println("length of string is .... ${s.length()}")
       ...
   }
 
-• tailrec   <·························· 'tailrec' tells compiler that implementation [[{performance]]
+## tailrec   <·························· 'tailrec' tells compiler that implementation [[{performance]]
   fun findFixPoint(x: Double = 1.0)     must be tail-recursive. Otherwise compilation must fail.
   :Double                               Compiler optimises out the recursion!!!
     = if (x == Math.cos(x)) x
@@ -614,7 +614,7 @@ println("length of string is .... ${s.length()}")
   foo(name = "hello",
       fun1 = { it.reversed() } )        <- Ussage
 
-• fun students(nameToMatch: String)
+## fun students(nameToMatch: String)
       : List<Student> {
     return loadStudents().filter {    <-●  CLOSURE function with access to
       it.lastName == nameToMatch           parent stack
@@ -633,8 +633,8 @@ println("length of string is .... ${s.length()}")
   }                                       [[}]]
 [[functions}]]
 
-● Kotlin OOP [[{oop]]
-• Kotlin Classes:
+# Kotlin OOP [[{oop]]
+## Kotlin Classes:
 @[https://kotlinlang.org/docs/reference/classes.html]
 - 'Any' : common superclass in Kotlin.
 - It is NOT java.lang.Object;
@@ -644,7 +644,7 @@ println("length of string is .... ${s.length()}")
 - By default classses are final.  [[qa.101,qa.immutability]]
   Use syntax 'open class ...' to make them non-final
 
-● COMPOSITION OVER INHERITANCE [[{oop.composition,qa.best_patterns]]
+# COMPOSITION OVER INHERITANCE [[{oop.composition,qa.best_patterns]]
   Sometimes called delegation, where delegation is actually the dessign pattern
   and composition the standard/easiest way to implement it.
   - Inheritance means that child *IS A* parent. This claim fails to be true
@@ -701,7 +701,7 @@ println("length of string is .... ${s.length()}")
   }
 [[oop.composition}]]
 
-• OOP Inheritance  [[{oop.inheritance]]
+## OOP Inheritance  [[{oop.inheritance]]
 
   - discouraged pattern except when we can formally probe (after
     publishing in a Journal-of-Mathematic paper) that child class
@@ -755,7 +755,7 @@ println("length of string is .... ${s.length()}")
   }
   val instance = Class1.create() <·· In can be now used as an "static" method.
 
-● COMPAQ CLASS DECLARATION [[{]]
+# COMPAQ CLASS DECLARATION [[{]]
   class Person(
     val firstName: String,   <- val/var in constructor define also members
     val lastName: String,
@@ -778,7 +778,7 @@ println("length of string is .... ${s.length()}")
   }
 [[}]]
 
-● SEALED CLASS  [[{oop.sealed_class]]
+# SEALED CLASS  [[{oop.sealed_class]]
 @[https://kotlinlang.org/docs/reference/sealed-classes.html]
 - represent restricted class hierarchies or "sort of" enum extensions,
   with subclasses being able to have multiple instances.
@@ -797,7 +797,7 @@ println("length of string is .... ${s.length()}")
   }
 [[oop.sealed_class}]]
 
-● INNER CLASS [[{oop.inner_class]]
+# INNER CLASS [[{oop.inner_class]]
   window.addMouseListener(
       object : ListenerBase (            <······ Example 1.  Object expressions are a
       baseClassConstructorParam1,                generalization of anonymous inner classes:
@@ -813,7 +813,7 @@ println("length of string is .... ${s.length()}")
 [[oop.inner_class}]]
 [[oop}]]
 
-● 'atomic' concurrent code: [[{concurrent.101]]
+# 'atomic' concurrent code: [[{concurrent.101]]
   STM: Software transactional memory
   Extracted from https://blog.plan99.net/kotlin-fp-3bf63a17d64a
   JVM can support libraries like Scala STM and something better:
@@ -852,7 +852,7 @@ println("length of string is .... ${s.length()}")
 [[concurrent.101}]]
 [[101}]]
 
-● Kotlin declaration-site variance: [[{generics]]
+# Kotlin declaration-site variance: [[{generics]]
   Read https://kotlinlang.org/docs/generics.html for more detailed info.
                                         Source is covariant in O, contravariant in I.
    interface Source<out O, in I> { <··· O is only returned (produced), never take as input param.
@@ -880,7 +880,7 @@ println("length of string is .... ${s.length()}")
 
 
 
-● Kotlin Domain Specific Language (DSL) [[{dsl]]
+# Kotlin Domain Specific Language (DSL) [[{dsl]]
   · REFs:
     https://blog.jetbrains.com/kotlin/2011/10/dsls-in-kotlin-part-1-whats-in-the-toolbox-builders/
     https://kotlinlang.org/docs/reference/type-safe-builders.html
@@ -914,7 +914,7 @@ println("length of string is .... ${s.length()}")
   filter { it => it.foo()}      |filter { it.foo() }        <···  default "it" name used.
 
 
-• Example Kotlin DSL for Type-safe HTML builder:
+## Example Kotlin DSL for Type-safe HTML builder:
   (See @[https://kotlinlang.org/docs/type-safe-builders.html] and
        @[https://github.com/Kotlin/kotlinx.html] for more elaborate example code)
 
@@ -940,7 +940,7 @@ println("length of string is .... ${s.length()}")
 
 [[dsl}]]
 
-● kotlinx.serialization: marshal objects using JSON or ProtoBuf. [[{IO.serialization,JSON,]]
+# kotlinx.serialization: marshal objects using JSON or ProtoBuf. [[{IO.serialization,JSON,]]
   https://github.com/kotlin/kotlinx.serialization
 
   import kotlinx.serialization.*
@@ -955,7 +955,7 @@ println("length of string is .... ${s.length()}")
               .decodeFromString<DProject>(strn1)
 [[}]]
 
-● 'gradle.properties' to customize Kotlin settings:  [[{devops.gradle]]
+# 'gradle.properties' to customize Kotlin settings:  [[{devops.gradle]]
   REF: https://kotlinlang.org/docs/reference/using-gradle.html
   kotlin.code.style=official
   kotlin.caching.enabled=true
@@ -966,7 +966,7 @@ println("length of string is .... ${s.length()}")
   kapt.incremental.apt=true         https://kotlinlang.org/docs/reference/kapt.html
 [[devops.gradle}]]
 
-● Coroutines  [[{coroutines,02_doc_has.comparative,performance]]
+# Coroutines  [[{coroutines,02_doc_has.comparative,performance]]
 - experimental starting with v.1.1+
 - Basically, coroutines are computations that can be suspended without blocking
   a thread.
@@ -1053,7 +1053,7 @@ println("length of string is .... ${s.length()}")
 @[https://github.com/Kotlin/kotlin-coroutines]
 @[https://github.com/Kotlin/kotlinx.coroutines/blob/master/coroutines-guide.md#composing-suspending-functions]
 
-• kotlinx.coroutines [[{01_PM.TODO]]
+## kotlinx.coroutines [[{01_PM.TODO]]
 @[https://kotlinlang.org/docs/reference/coroutines.html]
 @[https://github.com/Kotlin/kotlinx.coroutines/blob/master/coroutines-guide.md]
   This repo mostly consists of core primitives and interfaces that all coroutine-based
@@ -1069,7 +1069,7 @@ println("length of string is .... ${s.length()}")
   - Support for RxJava: kotlinx-coroutines-rx [[}]]
 [[coroutines}]]
 
-● kscript (Kotlin as script lang)  [[{qa.UX,01_PM.TODO.now]]
+# kscript (Kotlin as script lang)  [[{qa.UX,01_PM.TODO.now]]
 @[https://github.com/holgerbrandl/kscript]
   See also
 @[https://holgerbrandl.github.io/kscript_kotlinconf_2017/kscript_kotlinconf.html#1]
@@ -1084,23 +1084,23 @@ println("length of string is .... ${s.length()}")
 [[qa.UX}]]
 
 NON CLASSIFIED NOTES [[{01_PM.TODO.non_classified]]
-● kotlin.test: (out of the box in Kotlin 1.2+)
+# kotlin.test: (out of the box in Kotlin 1.2+)
   http://kotlinlang.org/api/latest/kotlin.test/index.html
   write test once under JVM and JS.
 
-● https://github.com/kotlin/kotlinx.html
+# https://github.com/kotlin/kotlinx.html
   - supports ISOMORPHIC RENDERING, using the same code to
     render HTML in the backend and in the frontend;
 
-● https://medium.com/blockchain-engineering/kotlin-akka-part-1-hello-kotlin-a0c0de7d7407
+# https://medium.com/blockchain-engineering/kotlin-akka-part-1-hello-kotlin-a0c0de7d7407
 
-● https://es.slideshare.net/IldarNurgaliev/kotlin-compiler-construction-very-brief
+# https://es.slideshare.net/IldarNurgaliev/kotlin-compiler-construction-very-brief
 
-● https://blog.jetbrains.com/kotlin/2018/09/kotlin-1-3-rc-is-here-migrate-your-coroutines
-● https://blog.jetbrains.com/kotlin/2017/12/kotlinnative-v0-5-released-calling-kotlin-from-swift-and-c-llvm-5-and-more/
+# https://blog.jetbrains.com/kotlin/2018/09/kotlin-1-3-rc-is-here-migrate-your-coroutines
+# https://blog.jetbrains.com/kotlin/2017/12/kotlinnative-v0-5-released-calling-kotlin-from-swift-and-c-llvm-5-and-more/
   Kotlin/Native v0.5 released: calling Kotlin from Swift and C, LLVM 5 and more
-● https://developers.redhat.com/blog/2018/12/24/using-a-kotlin-based-grpc-api-with-envoy-proxy-for-server-side-load-balancing/
-● https://javalin.io [[{IO.http.javalin,qa.UX,qa.documentation,01_PM.low_code]]
+# https://developers.redhat.com/blog/2018/12/24/using-a-kotlin-based-grpc-api-with-envoy-proxy-for-server-side-load-balancing/
+# https://javalin.io [[{IO.http.javalin,qa.UX,qa.documentation,01_PM.low_code]]
   - Javalin support OpenAPI (including Swagger UI and ReDoc).
   - Built on top of Jetty.
   - 7k lines of code, 10k lines of tests!!!
@@ -1131,7 +1131,7 @@ NON CLASSIFIED NOTES [[{01_PM.TODO.non_classified]]
     │ }.start(port)
     └───────────────────────────────────────────────────────
   [[IO.http.javalin}]]
-● https://www.infoq.com/articles/kotlin-multiplatform-ios-developers/
+# https://www.infoq.com/articles/kotlin-multiplatform-ios-developers/
   Kotlin Multiplatform for iOS Developers
     Using Kotlin Multiplatform, you can avoid repeating lots of logic
   to develop an app running on multiple platforms.
@@ -1144,9 +1144,9 @@ NON CLASSIFIED NOTES [[{01_PM.TODO.non_classified]]
     You can use Android Studio to create a reusable KMP component that
   you later import into an Xcode project as a framework.
 
-● https://allegro.tech/2018/05/From-Java-to-Kotlin-and-Back-Again.html
+# https://allegro.tech/2018/05/From-Java-to-Kotlin-and-Back-Again.html
 
-● https://kotlinlang.org/docs/reference/sequences.html
+# https://kotlinlang.org/docs/reference/sequences.html
   long with collections, the Kotlin standard library contains another container type – sequences (Sequence<T>). Sequences offer the same functions as Iterable but implement another approach to multi-step collection processing.
 
 When the processing of an Iterable includes multiple steps, they are executed eagerly: each processing step completes and returns its result – an intermediate collection. The following step executes on this collection. In turn, multi-step processing of sequences is executed lazily when possible: actual computing happens only when the result of the whole processing chain is requested.
@@ -1155,7 +1155,7 @@ The order of operations execution is different as well: Sequence performs all th
 
 So, the sequences let you avoid building results of intermediate steps, therefore improving the performance of the whole collection processing chain. However, the lazy nature of sequences adds some overhead which may be significant when processing smaller collections or doing simpler computations. Hence, you should consider both Sequence and Iterable and decide which one is better for your case.
 
-● https://www.infoq.com/articles/kotlin-coroutines-bottom-up
+# https://www.infoq.com/articles/kotlin-coroutines-bottom-up
 Key Takeaways
 - The JVM does not provide native support for coroutines
 - Kotlin implements coroutines in the compiler via transformation to a state machine
@@ -1163,26 +1163,26 @@ Key Takeaways
 - Kotlin uses Continuation Passing Style (CPS) to implement coroutines
 - Coroutines use Dispatchers, so are used slightly differently in JavaFX, Android, Swing, etc
 
-● Google Protocol Buffers Support Idiomatic Kotlin Bindings [[{IO.grpc]]
+# Google Protocol Buffers Support Idiomatic Kotlin Bindings [[{IO.grpc]]
   https://www.infoq.com/news/2021/12/protocol-buffers-kotlin-dsl/
 [[}]]
 
-● https://www.infoworld.com/article/3236419/development-tools/kotlin-frameworks-a-survey-of-jvm-development-tools.html#tk.ifw-infsb
+# https://www.infoworld.com/article/3236419/development-tools/kotlin-frameworks-a-survey-of-jvm-development-tools.html#tk.ifw-infsb
   Kotlin Frameworks survey
 
-● org.jetbrains.kotlin artifacts at Maven Central:
+# org.jetbrains.kotlin artifacts at Maven Central:
   https://search.maven.org/#search%7Cga%7C3%7Corg.jetbrains.kotlin
 
-● Annotation Processing with kapt plugin (Use Dagger,... in Kotlin)
+# Annotation Processing with kapt plugin (Use Dagger,... in Kotlin)
   https://kotlinlang.org/docs/reference/kapt.html
   Annotation processors (see JSR 269) are supported in Kotlin with the kapt
   compiler plugin. Being short, you can use libraries such as Dagger or Data
   Binding in your Kotlin projects.
 
-● Kotlin: Android Developers Blog: Accelerated Kotlin build times with Kotlin Symbol Processing 1.0
+# Kotlin: Android Developers Blog: Accelerated Kotlin build times with Kotlin Symbol Processing 1.0
   https://android-developers.googleblog.com/2021/09/accelerated-kotlin-build-times-with.html?m=1
 
-● public class MyTest {
+# public class MyTest {
     lateinit var subject: TestSubject        <··· lateinit: non-null property that can NOT be initialized in constructor
                                                   (init through dependency injection framework ,...)
     @SetUp fun setup() {                          but we still want to avoid null checks. If property has not
@@ -1195,4 +1195,19 @@ Key Takeaways
 }
 
 [[01_PM.TODO.non_classified}]]
+
+# Processing Data with Kotlin Dataframe [[{DATA_STRUCTURES.dataframe,01_PM.TODO]]
+https://www.infoq.com/news/2022/08/kotlin-dataframe-preview/
+[[}]]
+
+# Kotlin 1.7.20:
+  - support for several new plugins;
+  - (..<) operator preview for open-ended ranges;
+  - enabling the Kotlin/Native memory manager by default
+  - (experimental) inline classes with a generic underlying type.
+  - Gradle 7.1 support
+
+
+
+
 [[kotlin}]]
