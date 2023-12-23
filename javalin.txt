@@ -1,5 +1,15 @@
-# Javalin Simple Web Framework
+# https://javalin.io [[{IO.http.javalin,qa.UX,qa.documentation,PM.low_code]]
 (Summary at version 5.6.3)
+* supports OpenAPI (including Swagger UI and ReDoc).
+* Built on top of Jetty.
+* 7k lines of code, 10k lines of tests!!!
+* No need to extend classes and rarely need for new interfaces.
+* Used by Johns Hopkins Institute, Microsoft, Red Hat, Norwegian 
+  University of Science and Techology, Uber, Deutsche Kredibank AG, 
+  C6BANK, ...
+* Web Sockets supports
+
+
 
 * [REF](https://javalin.io/documentation)
 
@@ -514,7 +524,6 @@ app.sse("/sse") {  // app.sse() provides access to the connected SseClient
   ```
 [[}]]
 
-
 ## Java lang Error handling
 
 * Default error handler for java.lang.Error will log the error and return a 500.
@@ -533,3 +542,4 @@ app.sse("/sse") {  // app.sse() provides access to the connected SseClient
 * https://github.com/javalin/javalin/issues/232
 * https://github.com/javalin/javalin/issues/1462
 
+[[IO.http.javalin}]]

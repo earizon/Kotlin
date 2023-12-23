@@ -1252,39 +1252,6 @@ take an extra parameter of type Continuation under the hood.
 * supports ISOMORPHIC RENDERING, using the same code to
   render HTML in the backend and in the frontend
 
-# https://javalin.io [[{IO.http.javalin,qa.UX,qa.documentation,PM.low_code]]
-* Javalin support OpenAPI (including Swagger UI and ReDoc).
-* Built on top of Jetty.
-* 7k lines of code, 10k lines of tests!!!
-* No need to extend classes and rarely need for new interfaces.
-* Used by Johns Hopkins Institute, Microsoft, Red Hat, Norwegian 
-  University of Science and Techology, Uber, Deutsche Kredibank AG, 
-  C6BANK, ...
-* Web Sockets supports
-* example.kt 
-  ```
-  | // Deps: implementation "io.javalin:javalin:5.3.1"
-  | import io.javalin.Javalin;
-  | import io.javalin.apibuilder.ApiBuilder.*;
-  |
-  | val app = Javalin.create { config ->
-  |     config.enableCorsForAllOrigins()
-  |     config.asyncRequestTimeout = 10_000L
-  |     config.enforceSsl = true
-  | }.routes {
-  |     path("users") {
-  |         get(UserController::getAll)
-  |         post(UserController::create)
-  |         path("{userId}") {
-  |             get(UserController::getOne)
-  |             patch(UserController::update)
-  |             delete(UserController::delete)
-  |         }
-  |         ws("events", userController::webSocketEvents)
-  |     }
-  | }.start(port)
-  ```
-[[IO.http.javalin}]]
 
 ## Kotlin Multiplatform for iOS Developers [[{PM.TODO,iOS]]
 REF: <https://www.infoq.com/articles/kotlin-multiplatform-ios-developers/>
