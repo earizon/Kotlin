@@ -91,36 +91,33 @@
   * <https://kotlinlang.org/docs/reference/null-safety.html>
   * ```
   | [[{qa.billion_dolar_mistake,101}]]
-  |  val nullable01 : String? = "abc"     // <·· nullables must be declared explicetelly with <Type>?
+  |  val nullable01 : String? = "abc" // <·· nullables must be declared 
+  |                                   //     explicetelly with <Type>?
+  |  val s02 : String =               // <·· Assigning nullable to non-null
+  |    if  (nullable01 != null)       //    requires if (..!=null) ... else ...
+  |         nullable01.length else -1
+  |  val l= nullable01?.length ?: -1  // <·· "Shortcut" Using ?:
+  |                                   //      "Elvis op." syntax sugar
+  |  val name = nullable01.getA()!!   // <·· throw NullPointerEx. if null present
   |
-  |  val s02 : String =                   // <·· Assigning nullable to non-nullable
-  |     if (nullable01 != null)           // <··    requires if (..!=null) ... else ...
-  |         b.length
-  |     else -1
-  |  val l = b?.length ?: -1              // <·· "Shortcut" / Syntax-sugar Using "Elvis operator" ?:
+  |  nullableInstance ?               // <·· Null check "shortcut"/"Syntax sugar".
+  |     .department ?                 // <·· Returns null if nullableInstance, 
+  |        .data ?                    // <··department or data is null
   |
-  |  val name = node.getName()!!          // <·· Abort and throw NullPointerException if null present
-  |
-  |
-  |  nullableInstance ?                   // <·· Null check "shortcut"/"Syntax sugar".
-  |     .department ?                     // <··    Returns null if nullableInstance, department
-  |        .data ?                        // <··     or data is null
-  |
-  |  val listWithNulls:
-  |     List<String?> = listOf("A", null)
+  |  val listWithNulls: List<String?> 
+  |     = listOf(A, null)
   |  for (item in listWithNulls) {
-  |    item ?.let  { println(it) }        // <·· "?.let" skips block if item instance is null
-  |       block execution for nulls */*
+  |    item ?.let  { ... }            // <·· `?.let { ...} skips block on null
   |  }
   |
-  |  val intList: List<Int> =
+  |  val intList: List<Int> =         // <·· Remove Nulls at list init.
   |    listOf(1, 2, null, 4)
-  |     .filterNotNull()                  // <·· Fix/Remove Nulls at list initialization.
+  |     .filterNotNull()
   |
-  |  fun getName(): String? = ...         // <·· SmartCast
-  |  val name = getName()                 //
-  |  if (name != null) {                  //
-  |    println(name.length)               //     Here compiler knows that 'name' is not null
+  |  fun getName(): String? = ...     // 
+  |  val name = getName()             //
+  |  if (name != null) {              // <·· SmartCast:  Here compiler knows 
+  |    println(name.length)           //     that 'name' is not null
   |  }
   ```
 
@@ -166,16 +163,16 @@
   |
   ```
 
-# STANDARD FUNCTIONS [[{std_fun]]
+# STANDARD FUNCTIONS [[{101.std_funs]]
 * (no import required)
 ## apply
 
   ```
   | val task = Runnable { ... }
   | Thread(task)
-  |   .apply  { setDaemon(true) } // <- helper function to init objects,
-  |   .apply { ... }              //    1) applies lambda to object
-  |   .start()                    //    2) return same object.
+  |   .apply { setDaemon(true) }  // <·· helper function to init objects,
+  |   .apply { ... }              //     1) applies lambda to object
+  |   .start()                    //     2) return same object.
   ```
 
 ## with(instance)
@@ -187,7 +184,7 @@
   |   ...
   | }
   | val myTurtle = Turtle()
-  | with(myTurtle) {           // <·· Avoid repeated myTurtle. (prefix) typing.
+  | with(myTurtle) {           // <·· Avoid repeated myTurtle. typing.
   |   for(i in 1..4) {         //     <·· 1..4 creates 1,2,3,4 range.
   |     forward(100.0);        //
   |     turn(90.0)             //
@@ -199,43 +196,45 @@
 
   ```
   | val outputPath = Paths.get("/home/user")
-  | .run {                          //  <- A closure {...} is passed to run
+  | .run {                          // <·· A closure {...} is passed to run
   |   val path = resolve("out.log") // ┌·· 'outputPath.' implicit.
-  |   //        ^······················┘   path == File("/home/user/out.log)
+  │   //         └─────┴···············┘   path == File("/home/user/out.log")
   |   path.toFile().createNewFile()
-  |   path                              <- return value of closure is used as
-  | }                                      return value of run itself
-  | [[std_fun}]]
+  |   path                          // <·· return value of closure is used as
+  | }                               //     return value of run itself
   ```
 
 ## 'lazy' [[{performance]]
   ```
-  | val s1 = lazy {             //  <·· wraps expensive operation to be
-  |    expensiveOperationFun()  //      invoked when first required.
+  | val s1 = lazy {                 //  <·· wraps expensive operation to be
+  |    expensiveOperationFun()      //      invoked when first required.
   | }
   ```
 [[}]]
 
-## 'use' (try-with-resources in java)
+## 'use' (try-with-resources in java)  [[{doc_has.comparative]]
   ```
   | val stream = Files.newInputStream( // [[{qa.101}]]
   |     Paths.get("/some/file.txt"))
   | stream.buffered().
-  |   reader() .use  {               <- Close reader after { ...} executions
+  |   reader().use  {               // <·· Close reader after {...} exec.
   |   reader ->
   |     println(reader.readText())
   | }
   ```
+[[}]]
 
 ## repeat (skip "for" loop)
   ```
   | repeat(10, { println("Hello") })
   ```
+[[101.std_funs}]]
 
 # KOTLIN DATA STRUCTURES [[{data_structures]] [[ $ TODO: move to correct place ]]
 
 ## BASIC TYPES [[{data_structures.standard_types]]
 
+* Types supported by compiler:
   ```
   | * Long/Int/Short/Byte(64,32,16,8)  <- Numerical.
   | * val c: Char = '\uFF00',          <- Chars
@@ -244,62 +243,88 @@
   | * Strings
   | * Arrays
   | * Boolean
-  |
-  |     ┌───────────┬─· alt syntax: '0'..'9'.contains(c)
-  | if (c in '0'..'9')               • e.g. explicit Chart to Int conversion
+  ```
+* Example. explicit Chart to Int conversion
+  ```
+  | //  ┌───────────┬─· alt syntax: '0'..'9'.contains(c)
+  | if (c in '0'..'9')            // <·· 
   |   c.toInt() - '0'.toInt()
   | else
   |   throw RuntimeException("...")
-  |
-  | val x = (1 shl 2) and 0x00FF      • BITWISE OPERATIONS
-  | (u)shl/(u)shr) bits:              <- (un)signed shift left/righ
-  | and/or/xor                        <- bitwise
-  | inv()                             <- bitwise inversion
-  |
-  | * (Byte|Short|Int|...)Array       • SPECIAL OPTIMIZED ARRAYS [[{performance}]]
-  |             [[data_structures.standard_types}]]
   ```
+* Bitwise Operations
+  ```
+  | val x = (1 shl 2) and 0x00FF  //  
+  | (u)shl/(u)shr) bits:          //  <- (un)signed shift left/righ
+  | and/or/xor                    //  <- bitwise
+  | inv()                         //  <- bitwise inversion
+  ```
+* SPECIAL OPTIMIZED ARRAYS
+  | (Byte|Short|Int|...)Array     // [[{performance}]]
+  ```
+[[data_structures.standard_types}]]
 
-##  Sequence<T> ("Java streams") [[{data_structures.sequences]]
+## Sequence<T> ("Java streams") [[{data_structures.sequences]]
 * REF: <https://kotlinlang.org/docs/reference/sequences.html>
 * Similar to Java streams or **Unix pipelines**.
-* """ Sort of collections of unknown size """        [[{doc_has.KEY-POINT]]
-* Compared to collections, sequences do NOT        [[{doc_has.comparative,performance]]
+* """ Sort of collections of unknown size """      [[{doc_has.KEY-POINT]]
+* Compared to collections, sequences do NOT        [[doc_has.comparative,performance]]
   use/waste intermediate memory during processing. [[}]]
 * They can also be seen as "future" collections
-  with "future" (unknown at compile time) external
-  (incomming or computed) data.
-  This is the most common scenarios in production
+  with "future" unknown at compile time (external
+  incomming or computed) data.
+  This is the most common scenario in production
   environments.                                   [[doc_has.KEY-POINT}]]
+
+
+
   ```
+  | val seqFromElements = sequenceOf("1st" ,"2nd", "3rd"
+  | val seqFromFun1     = generateSequence(               // init from function.
+  |                        Instant.now()) {
+  |                          it.plusSeconds(1)
+  |                       }
+  |
   | var count = 10
-  | val sequence = generateSequence {  <- Sequence generator
-  |     (count--).takeIf { it > 0 }
-  | }
-  |                                    ● Generators (Kotlin v.1.2.41+) [[{performance.generators]]
-  | val fibonacciSeq = buildSequence {  <- Build generator (vs sequence).
-  |     var a = 0, b = 1                   data is generated on-demand (lazely)
-  |     yield(1)                           <- 'yield' stops execution until "next-value" request
-  |     while (true) {                          ·     to "function" is done.
-  |         yield(a + b)                   <-···┘     • See also buildIterator():
-  |         val tmp = a + b                     ·
-  |         a = b                               ·
-  |         b = tmp                             ·
-  |     }                                       ·
-  |     yieldAll(1..10)                    <···─┴─ yield a collection (or sequence) of values
-  | }                                              at once on 'next-value' request.
+  | val seqFromFun2     = generateSequence {              // <- Sequence generator
+  |                         (count--).takeIf { it > 0 }
+  |                       }
   |
-  | fibonacciSeq.take(8).toList() <··· Ussage [1, 1, 2, 3, 5, 8, 13, 21]
+  | val seqFromChunks = sequence {                        // <- init from "chunks"
+  |     yield(1)                                          //    using a generator
+  |     yieldAll((2..5).toList())                         //    data generated lazely
+  | }                                                     //    on-demand.
+  | 
+  | val seqFromIterable = (1..10).asSequence()            // init from Iterable.
+  ```
+  * Generators (Kotlin v.1.2.41+) [[{performance.generators]]
+  ```
+  | val fibonacciSeq = buildSequence { // <- Build generator (vs sequence).
+  |   var a = 0, b = 1          //    data is generated on-demand (lazely)
+  |   yield(1)                  //    <- 'yield' stops execution until "next-value" request
+  |   while (true) {            //         ·     to "function" is done.
+  |       yield(a + b)          //    <-···┘     * See also buildIterator():
+  |       val tmp = a + b       //         ·
+  |       a = b                 //         ·
+  |       b = tmp               //         ·
+  |   }                         //         ·
+  |   // yieldAll(1..10)        //    <···─┴─ yield collection of values
+  | }                           //            at once on 'next-value' request.
   |
-  | val lazySeq = buildSequence { yield(0) }                           [[performance.generators}]
+  | //           ┌──────┬─!!! 
+  | fibonacciSeq.take(8).toList() // result: [1, 1, 2, 3, 5, 8, 13, 21]
+  │ //                   └──────┴─   terminal sequence─to─collection operator.
+  |
+  | val lazySeq = buildSequence { yield(0) }  [[performance.generators}]
   ```
 * while an iterable executes eagerly returning a full intermediate collection on
   each step (filter, map, ...), a sequence executes lazily when possible:
   actual computing happens only when the result of the whole processing chain
   is requested:
-  * an Iterable completes each step for the whole collection and then proceeds to the next step.
+  * an Iterable completes each step for the whole collection and then 
+    Oproceeds to the next step.
   * a Sequence performs all the processing steps one-by-one for every single element. 
-* BUTS:  The lazy nature of sequences adds some overhead which may be significant when
+* BUTS: The lazy nature of sequences adds some overhead which may be significant when
   processing smaller collections or doing simpler computations. 
   [[data_structures.sequences}]]
 
@@ -664,7 +689,7 @@ REF: <https://kotlinlang.org/docs/reference/functions.html>
   | fun students(nameToMatch: String)
   |     : List<Student> {
   |   return loadStudents().filter { // <··  CLOSURE: fun. with access to
-  |     it.lastName == nameToMatch                    parent stack
+  |     it.lastName == nameToMatch   //               parent stack
   |   }
   | }
   ```
@@ -686,31 +711,31 @@ REF: <https://kotlinlang.org/docs/reference/functions.html>
 
 * Kotlin Classes:
   * REF: <https://kotlinlang.org/docs/reference/classes.html>
-  * `Any`: common superclass in Kotlin.
-  * It is NOT java.lang.Object;
+  * `Any`: common superclass in Kotlin.<br/>
+    It is NOT java.lang.Object;<br/>
     it does not have any members other than
-    equals(), hashCode() and toString().
+   `equals()`,`hashCode()` and `toString()`.
   * By default classses are final.  [[{qa.101,qa.immutability}]]<br/>
     Use syntax 'open class ...' to make them non-final
 
 * Kotlin Interfaces [[{101.interfaces]]
   ```
   | interface Iface1<out T : Any> {  // <·· INTERFACE DEFINITION
-  |     val prop1: Int                      <· Properties can be part of the interface.
-  |     val prop2: String
-  |          get() = "foo"                  <· Default accessor
+  |     val prop1: Int               //     <· Properties can be part of
+  |     val prop2: String            //        the interface
+  |          get() = "foo"           //     <· Default accessor
   |     fun bar(): T
   |     fun foo(): Unit
-  |     fun foo(a: Int): T                  <· instance: => instance <··> type
+  |     fun foo(a: Int): T           //     <· instance: => instance <··> type
   | }
   |
-  | class Class : Iface1, Iface2 {  // <·· Declare class implemeting interface
-  |   override val prop: Int = 29
+  | class Class : Iface1, Iface2 {  // <·· Declare class 
+  |   override val prop: Int = 29   //     implemeting interface
   | }
   ```
-  * Single-Method Interface Shortcut
-    * shortcut/Syntax sugar when an instance
-      implements an interface with a single method.
+  * Single-Method Interface Shortcut:<br/>
+    shortcut/Syntax sugar when an instance
+    implements an interface with a single method.
     * (Similar to that used in GO and other modern languages)
     * Applies to common single-method interfaces like
       Runnable, Callable, Closeable, Comparator, ...
@@ -768,12 +793,12 @@ the dessign pattern and composition the standard/easiest way to implement it**.
     * <https://kotlinlang.org/docs/reference/delegation.html>
   * Note: foreign keys in SQL is the best well known form of composition:
     ```
-    employee      person     client       <·· employee and client just keep
-    --------      -------    ------           pointers (foreign keys) to
-    id      ←─┐┌─→ id   ←─┐  id               persons.
-    roll      ││   name   └─ fk_person
-    fk_person ─┘   ...    ┌─ fk_saleManager
-    ...       └───────────┘   ...
+    | employee      person     client       <·· employee and client just keep
+    | --------      -------    ------           pointers (foreign keys) to
+    | id      ←─┐┌─→ id   ←─┐  id               persons.
+    | roll      ││   name   └─ fk_person
+    | fk_person ─┘   ...    ┌─ fk_saleManager
+    | ...       └───────────┘   ...
     ```
     When using composition a worker is not a person but is composed with a person.
     * worker01.person is defined.
@@ -856,8 +881,9 @@ the dessign pattern and composition the standard/easiest way to implement it**.
 
 ## SINGLETON OBJECTS  [[{oop.singleton,qa.101]]
 
+* // Use `object` instead of `class`
   ```
-  | object  Resource {         <- use 'object' instead of 'class'
+  | object  Resource {      
   |   val name = "Name"
   |   fun method1(...) { ... }
   |   ...
@@ -868,19 +894,23 @@ the dessign pattern and composition the standard/easiest way to implement it**.
 ## COMPANION OJECTS (Java "static" methods)
   ```
   | class Class1 {
-  |   companion object Fact01      <·· Companion object. 'Fact01' name can be omitted *1
-  |      : IFactory<Class1> {      <·· the companion object can (at will) implement an interface
-  |                                    (this is not possible with static methods in Java)
-  |     override fun create(): ...     Use @JvmStatic annotation for compatibility with Java
-  |   }                                *1: It can still be referenced with Class1.Companion
+  |   companion object Fact01  // <·· Companion object. ¹ 
+  |      : IFactory<Class1> {  //     <·· It can (at will) implement interfaces
+  |                                       (not possible with Java static methods) 
+  |     override fun create(): ... // <·· Use @JvmStatic for Java compatibility
+  |   }                            //     It can still be referenced with Class1.Companion
   | }
-  | val instance = Class1.create() <·· In can be now used as an "static" method.
+  | val instance = Class1.create() // <·· Use craete as an "static" method.
+  | 
+  | // ¹ 'Fact01' name can be omitted *1
   ```
 
 ## COMPAQ CLASS DECLARATION [[{]]
+
+*  val/var in constructor define also members:
   ```
   | class Person(
-  |   val firstName: String,   <- val/var in constructor define also members
+  |   val firstName: String,  
   |   val lastName: String,
   |   var age: Int) {
   |   ...
@@ -889,31 +919,50 @@ the dessign pattern and composition the standard/easiest way to implement it**.
   | class Customer
   |   public
   |   @Inject
-  |   constructor ( val name: String = "")  <- 'constructor'  keyword optional if no
-  | {                                          annotations and default visibility applies
+  |   constructor ( val name: String = "")  // <- `constructor`  keyword optional if no
+  | {                                             annotations and default visibility applies
   |     ...
-  |     init {                              <- 'init' marks an initializer block
+  |     init {                              // <- `init` marks an initializer block
   |       logger.info("init ${name}")
   |     }
-  |     constructor(parent: Person) {       <-  "Secondary" constructor
+  |     constructor(parent: Person) {       // <-  "Secondary" constructor
   |       parent.children.add(this)
   |   }
   | }
   ```
 [[}]]
 
+## `lateinit` vars:
+
+   ```
+   | public class MyTest {                   [[{q.billion_dolar_mistake}]]
+   |   lateinit var subject: TestSubj // <·· lateinit: non-null property that can NOT be 
+   |                                         initialized in constructor but through 
+   |                                         dependency injection,...)
+   |   @SetUp fun setup() {                  We still want to avoid null checks. 
+   |       subject = TestSubj()              If the property has no custom get/set-ers 
+   |   }                                     it can be used as non-null anywhere except
+   |                                         in constructor.
+   |                                         In `init` it will throw a clear error.
+   |   @Test fun test() {
+   |       subject.method()           // <·· dereference directly
+   |   }
+   | }
+   ```
+
 ## SEALED CLASS
 * REF: <https://kotlinlang.org/docs/reference/sealed-classes.html>    [[{oop.sealed_class]]
 * represent restricted class hierarchies or "sort of" enum extensions,
   with subclasses being able to have multiple instances.
 * (sealed class/subclasses must be declared in the same file)
+* (Sealed Classed not available in Java until 17+)
   ```
-  | sealed class Expr         <························ 'sealed' declares 'Expr' as sealed.
+  | sealed class Expr  //     <··  `sealed` declares `Expr` as sealed
   | data class Const(val number: Double)       : Expr()
   | data class Sum(val e1: Expr, val e2: Expr) : Expr()
   | object /*singleton*/ NotANumber            : Expr()
 
-  | fun eval(expr:  Expr ): Double =                   <··· Ussage:
+  | fun eval(expr:  Expr ): Double = // <·· Ussage:
   |   when(expr) {
   |   is  Const       -> expr.number
   |   is  Sum         -> eval(expr.e1) + eval(expr.e2)
@@ -922,20 +971,25 @@ the dessign pattern and composition the standard/easiest way to implement it**.
   ```
   [[oop.sealed_class}]]
 
-  ```
-  // INNER CLASS                       [[{oop.inner_class]]
-  window.addMouseListener(
-    object : ListenerBase (         <·· Ex.1: Object expressions are a
-    baseClassConstructorParam1,         generalization of anonymous
-    ...) {                              inner classes.
-      override fun
-        onMouseClicked(e: MouseEvent)
-          { ... }
-    })
+## INNER CLASS
 
-  interface B {...}                 <· Ex.2: [[{PM.TODO}]]
-  val ab: A = object : A(1),
-              B { override ...  }      [[oop.inner_class}]]
+* Object expressions are a generalization of anonymous
+  inner classes.
+  ```
+  | [[{oop.inner_class]]
+  |window.addMouseListener(
+  |  object : ListenerBase (         // <·· Ex.1: "inner class" 
+  |  baseClassConstructorParam1,         
+  |  ...) {
+  |    override fun
+  |      onMouseClicked(e: MouseEvent)
+  |        { ... }
+  |  })
+  |
+  |interface B {...}                 // <·· Ex.2: [[{PM.TODO}]]
+  |val ab: A = object : A(1),
+  |            B { override ...  }
+  | [[oop.inner_class}]]
   ```
 [[oop}]]
 
@@ -988,15 +1042,15 @@ the dessign pattern and composition the standard/easiest way to implement it**.
 ## Kotlin declaration-site variance [[{generics]]
 * Refer to <https://kotlinlang.org/docs/generics.html> for full details.
   ```
-  | interface                         Source is covariant in O, contravariant in I.
-  | Source<out O, in I> {         <·· O is only returned (produced), never take as input param.
-  |                                   I is only taken as input (consumed) param, never returned.
-  |   fun nextT(): O              <·· out O may occur only in the out-position in the members of C
-  |   fun compareTo(other: T): Int<·· in  I may occur only in input-position params.
+  | interface                 //      Source is covariant in O, contravariant in I.
+  | Source<out O, in I> {     //  <·· O is only returned (produced), never used as input.
+  |                           //      I is only used as input, never returned.
+  |   fun nextT(): O          //  <·· out O may occur only in the out-position
+  |   fun compareTo(other: I): Int<·· in  I may occur only in input-position params.
   | }
   |
   | class
-  | Array<T>(val size: Int) {     <·· T now is an in and out. neither co/contra-variant
+  | Array<T>(val size: Int) { //  <·· T is an `in` and `out`. neither co/contra-variant
   |   operator fun
   |   get(index: Int): T { ... }
   |
@@ -1004,22 +1058,21 @@ the dessign pattern and composition the standard/easiest way to implement it**.
   |   set(index: Int, value: T) { ... }
   | }
   |
-  | fun
-  | copy(from: Array<Any>, to: Array<Any>)     <·· Compilation error.
-  | fun
-  | copy(from: Array<out Any>, to: Array<Any>) <·· OK, this is called "TYPE PROJECTION"
+  | fun copy(from: Array<Any>    , to: Array<Any>) // <·· Compilation error.
+  | fun copy(from: Array<out Any>, to: Array<Any>) // <·· OK, "TYPE PROJECTION"
   |
-  | Type projection: "It is not a simple array, but is rather a restricted (projected) one"
+  | Type projection:
+  | " It is not a simple array, but 
+  |  is rather a restricted (projected) one"
   |
-  | Foo<out T : TUpper>                        <·· T is covariant type "up to" TUpper
+  | Foo<out T : TUpper>  // <·· T is covariant type "up to" TUpper
   | fun
   | <T : Comparable<T>> sort(list: List<T>)
   | {  ... }
   |
-  | if (something is List<*>)                  <·· '*' needed to check for types.
+  | if (something is List<*>) // <·· '*' needed to check for types.
   ```
 [[generics}]]
-
 
 
 # Kotlin Domain Specific Language (DSL) [[{101.dsl]]
@@ -1084,9 +1137,8 @@ the dessign pattern and composition the standard/easiest way to implement it**.
   ```
 [[101.dsl}]]
 
-# kotlinx.serialization: marshal objects using JSON or ProtoBuf. [[{IO.serialization,JSON,]]
+# kotlinx.serialization: JSON or ProtoBuf [[{IO.serialization.JSON,]]
 * REF: <https://github.com/kotlin/kotlinx.serialization>
-
   ```
   | import kotlinx.serialization.*
   | import kotlinx.serialization.json.*
@@ -1101,7 +1153,7 @@ the dessign pattern and composition the standard/easiest way to implement it**.
   ```
 [[}]]
 
-# 'gradle.properties' customization:  [[{devops.gradle]]
+# `gradle.properties` customization:  [[{devops.gradle]]
 
 REF: <https://kotlinlang.org/docs/reference/using-gradle.html>
 
@@ -1127,10 +1179,10 @@ REF: <https://kotlinlang.org/docs/reference/using-gradle.html>
   instructions, but rather only at defined suspension points, which are
   calls to specially marked functions.
   ```
-  suspend fun  susA(foo: Foo)    <·· 'suspend' marks the function as a suspension point
-               : Bar {               funA can ONLY be called from coroutines and other
-    ...                              suspending functions
-  }
+  | suspend fun  susA(foo: Foo) // <·· `suspend` marks function as 
+  |              : Bar {        //     a suspension point: funA can ONLY 
+  |   ...                       //     be called from coroutines and 
+  | }                           //     other suspending functions.
   ```
 * To start a coroutine, there must be at least one suspending function,
   and it is usually a suspending lambda. Ex:
@@ -1192,13 +1244,12 @@ C#/ECMAScript, channels/select in Go, generators/yield in C#/Python.
 (NO SUPPORT FROM THE VM OR OS SIDE IS REQUIRED), and suspension
 through code transformation.
 
-
 [[{doc_has.KEY-POINT]]
  Briefly put, every suspending function is transformed to a state machine
 where states correspond to suspending calls. Right before a suspension,
 the next state is stored in a field of a compiler-generated class
 along with relevant local variables, etc.<br/>
-Upon resumption of that coroutine, local variables are restored and the
+ Upon resumption of that coroutine, local variables are restored and the
 state machine proceeds from the state right after suspension.
 [[}]]
 
@@ -1231,6 +1282,7 @@ take an extra parameter of type Continuation under the hood.
 
 # kscript (Kotlin as script lang)  [[{qa.UX,PM.TODO.now]]
 * <https://github.com/holgerbrandl/kscript>
+* Compares to Java JBang.
 * See also
   <https://holgerbrandl.github.io/kscript_kotlinconf_2017/kscript_kotlinconf.html#1>
 * Compiled script caching (using md5 checksums).
@@ -1244,18 +1296,18 @@ take an extra parameter of type Continuation under the hood.
 [[qa.UX}]]
 
 # TODO NON CLASSIFIED NOTES [[{PM.TODO.non_classified]]
-## kotlin.test: (out of the box in Kotlin 1.2+)
+## kotlin.test: (Kotlin 1.2+)
 * http://kotlinlang.org/api/latest/kotlin.test/index.html
   write test once under JVM and JS.
 
-## https://github.com/kotlin/kotlinx.html
+## Koltinx ISOMORPHIC RENDERING
+* <https://github.com/kotlin/kotlinx.html>
 * supports ISOMORPHIC RENDERING, using the same code to
   render HTML in the backend and in the frontend
 
 
 ## Kotlin Multiplatform for iOS Developers [[{PM.TODO,iOS]]
 REF: <https://www.infoq.com/articles/kotlin-multiplatform-ios-developers/>
-
 * Avoid repeating lot of logic to develop an app running on
   multiple platforms.
 * KMP is not the final step to accomplishing 100% shared code across
@@ -1268,21 +1320,6 @@ REF: <https://www.infoq.com/articles/kotlin-multiplatform-ios-developers/>
   you later import into an Xcode project as a framework.
 [[}]]
 
-
-## lateinit var
-   ```
-   | public class MyTest {                   [[{q.billion_dolar_mistake}]]
-   |   lateinit var subject: TestSubj // <·· lateinit: non-null property that can NOT be 
-   |                                         initialized in constructor but through dependency injection,...)
-   |   @SetUp fun setup() {                  We still want to avoid null checks. 
-   |       subject = TestSubj()              If the property has not custom getters/setters it can be 
-   |   }                                     used as non-null anywhere except in constructor.
-   |                                         Accessing it before init. throws an special exception
-   |   @Test fun test() {                    that clearly identifies the issue.
-   |       subject.method()           // <·· dereference directly
-   |   }
-   | }
-   ```
 
 ## Processing Data with Kotlin Dataframe [[{data_structures.dataframe,PM.TODO]]
 * <https://www.infoq.com/news/2022/08/kotlin-dataframe-preview/>
