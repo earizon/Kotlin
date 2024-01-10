@@ -993,6 +993,143 @@ the dessign pattern and composition the standard/easiest way to implement it**.
   ```
 [[oop}]]
 
+# Kotest  [[{qa.testing.kotest]]
+* <https://kotest.io/>
+* Kotlin multi-platform (JVM, Javascript, native) test framework with integrated property testing.
+  (Native test engine annotation based configuration will not work
+    as Kotlin does not expose annotations at runtime to native code).
+* pre-equipped with collection inspectors, non-determistic test 
+  helpers, soft assertions, modules for arrow, json, kotlinx-datetime 
+  and much more.
+* Main modules/subprojects:
+  * Test framework.
+  * Assertions library
+  * Property testing
+  We can pick the assertions library with JUnit, or the Kotest test 
+  framework with Assertj, ....
+
+## PRE-SETUP
+
+### JVM/Gradle
+   ```
+   file:///build.gradle.kt  // Valid for Gradle 4.6+ 
+   | 
+   | tasks.withType<Test>().configureEach { // ¹
+   |    useJUnitPlatform()                        // <·· Step 1. User JUnit
+   | }                              
+   | testImplementation 'io.kotest:kotest-runner-junit5:$version'   // NEXT) (opt) Add Kotest junit5 runner dep.
+   | testImplementation 'io.kotest:kotest-assertions-core:$version' // NEXT) (opt) Add Kotest Assertions lib.
+   | testImplementation 'io.kotest:kotest-property:$version'        // NEXT) (opt) Add property testing lib. 
+   |
+   ```
+    ¹ Groovy alt:
+   ```
+   | test { useJUnitPlatform() } 
+   ```
+   (See original doc for configuration in Maven, JS, native, Android)
+
+## Writing tests
+
+
+  ```
+  | //                   ┌────────┬─ 'suspend (TestCase) -> Unit' fun.signature
+  | val reusableDDBBFun: BeforeTest = { ... } 
+  | class NestedTest : DescribeSpec({    // <·· class is known as "spec"
+  |    
+  | // Lifecycle callbacks ----------------
+  | 
+  |   prepareSpec { ... }                // <·· Executed just once per Spec
+  |  finalizeSpec { ... }                // <·· Executed just once per Spec after all tests completed. 
+  | 
+  |  beforeSpec { ... }                  // <·· Exec. after the Engine instantiates an spec 
+  |   afterSpec { ... }                  //     Executed N times if InstancePerTest or
+  |                                      //     InstancePerLeaf isolation modes are used.
+  | beforeInvocation { ... }             // <·· Exec before each test adding the iteration number.
+  |  afterInvocation { ... }             //     functionally equivalent to beforeTest in default single 
+  |                                      //     invocation.
+ 
+  |                                      //     Otherwise it is functionally equivalent to prepareSpec 
+  |  beforeEach { reusableDDBBFun }      // <·· Before each "leaf" (TestType.Test) is executed
+  |                                      //     or beforeTest                    
+  |   afterEach { ...             }      // <··  
+  |                                      //     or afterTest
+  | beforeContainer	{ ...         }      //                         
+  |  afterContainer	                     // <·· executed even if test fails
+  |  beforeAny                           // <·· execute before leaf or container test
+  |  afterAny
+  |  
+  | // Lifecycle callbacks ----------------
+  |  describe("an outer test") {         // <·· CONTAINER Test for nested tests
+  |     it("inner test 1") { ... }       // <·· "LEAF" test 
+  |     it("inner test 2") { ... }
+  |  }
+  |  
+  |   listOf( "sam", "pam", "tim", )
+  |   .forEach {
+  |     test("$it length should be 3") { // <·· "Dynamic" test. Can either be nested of leaf test.
+  |       it.shouldHaveLength(3)         //     dependeing on  functionality such as property 
+  |     }                                //     tests or data tests.
+  |   }
+  |
+  |  afterEach { println("Goodbye from $it") }
+  |    
+  | })
+  ```
+
+## Test writing Styles
+
+  ```
+  | class MyTests : ShouldSpec({                 // shouldSpec style (similar to FunSpec)
+  |     context("String.length") {
+  |         should("return the length of the string") {
+  |             "sammy".length shouldBe 5
+  |             "".length shouldBe 0
+  |         }
+  |         xshould("...") { ...}                // xcontext/xshould disables the test
+  |     }                                        // (in addition to the usual ways)
+  | })
+  ```
+
+  ```
+  | class MyTests : BehaviorSpec({               // Behavior Spec BDD!!!  [[{qa.testing.bdd}]]
+  |   given(".... is in place") {
+  |     `when`("actorA sit on it") {             // <·· WARN: when is Kotlin keyword. It must be enclosed.
+  |       then("XXX should work!") {             //     alertantively use Given, When, Then
+  |         ...
+  |       }
+  |     }
+  |     `when`("actorB ...") {                   // <·· xgiven, xwhen, xthen disables the test
+  |       then("Y should triger") { ...  }
+  |     }
+  |   }
+  |   Given("...") {
+  |     And("...") {
+  |       When("...") {
+  |         And("...") {
+  |           Then("...") { ... }                // WARN: And doesn't work with then because of a bug.
+  |         }
+  |       }
+  |     }
+  |   }
+  | })
+  ```
+* See orginal doc for ExpectSpec, WordSpec, StringSpec and FreeSpec, DescribeSpec(Ruby/JS like), 
+   FeatureSpec (feature->secenario -> test "a la" Cucumber) and AnnotationSpec(warn doesn't
+   work cross-platform)
+* Fine tune execution.  [[{troubleshooting}]]
+  ```
+  | "....".config(        // <·· Fine tune execution.
+  |       timeout = 2.seconds,            // timeout for each test or for all tests.
+  |       invocations = 10,               // 
+  |       threads = 2,                    // parallelism
+  |       tags = setOf(Database, Linux)) {
+  |    }
+  ```
+
+* See original doc for test extensions.
+  <https://kotest.io/docs/framework/extensions/extensions-introduction.html>
+[[qa.testing.kotest}]]
+
 # Ktor HTTP client [[{IO.http.ktor,low_code]]
 
 * <https://ktor.io/docs/getting-started-ktor-client.html>
